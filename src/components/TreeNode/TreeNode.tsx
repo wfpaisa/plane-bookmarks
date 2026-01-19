@@ -1,10 +1,5 @@
 import { type NodeRendererProps, NodeApi } from "react-arborist";
-import {
-  MdFolder,
-  MdBookmark,
-  MdArrowDropDown,
-  MdArrowRight,
-} from "react-icons/md";
+import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { NodeInput } from "./NodeInput";
@@ -15,8 +10,6 @@ export function TreeNode({
   style,
   dragHandle,
 }: NodeRendererProps<BookmarkItem>) {
-  const Icon = node.isInternal ? MdFolder : MdBookmark;
-
   return (
     <div
       ref={dragHandle}
@@ -29,11 +22,30 @@ export function TreeNode({
     >
       <FolderArrow node={node} />
       <span className="node-icon">
-        <Icon size={18} />
+        {node.isInternal ? (
+          <Icon icon="solar:folder-bold" width={18} height={18} />
+        ) : (
+          <img src={node.data.icon} alt="" style={{ width: 18, height: 18 }} />
+        )}
       </span>
       <span className="node-name">
         {node.isEditing ? <NodeInput node={node} /> : node.data.name}
       </span>
+      {node.isLeaf && node.data.url && (
+        <span className="node-url">
+          <a href={node.data.url} target="_blank" rel="noopener noreferrer">
+            <Icon
+              icon="solar:link-minimalistic-2-bold"
+              width={22}
+              height={22}
+              className="icon-link"
+            />
+          </a>
+        </span>
+      )}
+      {node.isLeaf && node.data.tags && node.data.tags.length > 0 && (
+        <span className="node-tags">Tags: {node.data.tags.join(", ")}</span>
+      )}
     </div>
   );
 }
@@ -42,7 +54,11 @@ function FolderArrow({ node }: { node: NodeApi<BookmarkItem> }) {
   if (node.isLeaf) return <span className="node-arrow"></span>;
   return (
     <span className="node-arrow">
-      {node.isOpen ? <MdArrowDropDown size={20} /> : <MdArrowRight size={20} />}
+      {node.isOpen ? (
+        <Icon icon="solar:alt-arrow-down-bold" width={20} height={20} />
+      ) : (
+        <Icon icon="solar:alt-arrow-right-bold" width={20} height={20} />
+      )}
     </span>
   );
 }

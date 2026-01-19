@@ -1,9 +1,4 @@
-import {
-  MdViewModule,
-  MdFilterList,
-  MdUnfoldLess,
-  MdUnfoldMore,
-} from "react-icons/md";
+import { MdUnfoldLess, MdUnfoldMore } from "react-icons/md";
 import { Tree, TreeApi } from "react-arborist";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { TreeNode } from "../TreeNode";
@@ -81,14 +76,6 @@ export function MainContent({
           <div className="chip" onClick={handleExpandAll}>
             <MdUnfoldMore size={14} />
             <span>Expandir todo</span>
-          </div>
-          <div className="chip active">
-            <MdViewModule size={14} />
-            <span>Vista árbol</span>
-          </div>
-          <div className="chip">
-            <MdFilterList size={14} />
-            <span>Filtros</span>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ export type BookmarkItem = {
   url?: string;
   addDate?: string;
   icon?: string;
+  tags?: string[];
   children?: BookmarkItem[];
 };
 
@@ -11,6 +12,8 @@ export const bookmarksData: BookmarkItem[] = [
   {
     id: "1",
     name: "Inbox",
+    tags: ["uno", "dos"],
+    url: "https://jpepito.com",
     icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
