@@ -1,134 +1,107 @@
-import type { ComponentType } from "react";
-import * as icons from "react-icons/md";
-
-export type GmailItem = {
+export type BookmarkItem = {
   id: string;
   name: string;
-  icon: ComponentType;
-  unread?: number;
-  readOnly: boolean;
-  children?: GmailItem[];
+  url?: string;
+  addDate?: string;
+  icon?: string;
+  children?: BookmarkItem[];
 };
 
-export const gmailData: GmailItem[] = [
+export const bookmarksData: BookmarkItem[] = [
   {
     id: "1",
     name: "Inbox",
-    unread: 1,
-    readOnly: true,
-    icon: icons.MdInbox,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "2",
     name: "Starred",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdStarOutline,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "3",
     name: "Snoozed",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdAccessTime,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "4",
     name: "Sent",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdSend,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "5",
     name: "Drafts",
-    unread: 14,
-    readOnly: true,
-    icon: icons.MdOutlineDrafts,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "6",
     name: "Spam",
-    unread: 54,
-    readOnly: true,
-    icon: icons.MdOutlineReportGmailerrorred,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "7",
     name: "Important",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdLabelImportantOutline,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "8",
     name: "Chats",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdOutlineChat,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "9",
     name: "Scheduled",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdOutlineScheduleSend,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "10",
     name: "All Mail",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdOutlineMail,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "11",
     name: "Trash",
-    unread: 0,
-    readOnly: true,
-    icon: icons.MdOutlineDelete,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
   },
   {
     id: "12",
     name: "Categories",
-    icon: icons.MdOutlineLabel,
-    readOnly: true,
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
     children: [
       {
         id: "13",
         name: "Social",
-        unread: 946,
-        readOnly: false,
-        icon: icons.MdPeopleOutline,
+        url: "http://example.com/social",
+        addDate: "1414723524",
+        icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
       },
       {
         id: "14",
         name: "Updates",
-        unread: 4580,
-        readOnly: false,
-        icon: icons.MdOutlineInfo,
+        url: "http://example.com/updates",
+        addDate: "1414723524",
+        icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
       },
       {
         id: "15",
         name: "Forums",
-        unread: 312,
-        readOnly: false,
-        icon: icons.MdChatBubbleOutline,
+        icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
         children: [
           {
             id: "15-1",
             name: "Github",
-            readOnly: false,
-            icon: icons.MdSocialDistance,
+            url: "https://github.com",
+            addDate: "1414723524",
+            icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
           },
         ],
       },
       {
         id: "16",
         name: "Promotions",
-        unread: 312,
-        readOnly: false,
-        icon: icons.MdOutlineLocalOffer,
+        url: "http://example.com/promotions",
+        addDate: "1414723524",
+        icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVR4nJxTvWrCYBQ9CVGRCv6AD6A41R8ULG5FNxGcHBx8kj5Ed/eiu4sPIG4tCP6hBAIJJEOWkKFDMiTN/WhCE2OtPRD4vkvOvefc+11hOp0+cxz3CqCN+/BeqVTeBCK3PZTLZXjnPzFd14UkSU+iKD7yVPkeMoH+JY5pmg+CH/DhOA42mw1WqxV4nke320Wj0bgo4N+Fn0EiL5dLKIqCZrPJpK7Xa6iqin6/zxJGEUpAlWVZxmQyQS6XYzFKNJvNsN1u2TmKUEqSXa/XAzKhUCig1WrhdDohDkLUF9mIIplMMjtxCCno9XrY7XYwDCOIWZaF/X7Pun5TAXVb0zTM53N2TiQSOB6P0HUd+Xwetm0zNb9aoG4fDgfmmexUq1VkMhmcz2d2HwwGSKfT8Qn8JLVajX0+qPuLxQLey2NjHo1G8T24hlQqheFwiFKphE6nc2mBOnzrKZPs8Xgc3P2pkIIPbzGujikO38uEbDb7yf13nYlcLBZfvgAAAP//fk6CFAAAAAZJREFUAwB3m5O0J6wKFgAAAABJRU5ErkJggg==",
       },
     ],
   },

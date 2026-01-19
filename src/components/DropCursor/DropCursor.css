@@ -1,0 +1,9 @@
+/* Cursor de drop */
+.drop-cursor {
+  position: absolute;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+}

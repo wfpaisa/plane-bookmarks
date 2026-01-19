@@ -1,0 +1,89 @@
+/* Tree nodes */
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  cursor: pointer;
+  background: transparent;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.15s ease;
+  position: relative;
+  animation: fadeIn 0.2s ease;
+  height: 100%;
+}
+
+.tree-node:hover {
+  background: var(--bg-tertiary);
+}
+
+.tree-node.selected {
+  background: linear-gradient(
+    90deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    rgba(236, 72, 153, 0.08) 100%
+  );
+  border-left: 2px solid var(--accent-purple);
+}
+
+.tree-node.editing {
+  background: var(--bg-elevated);
+}
+
+.node-arrow {
+  display: flex;
+  align-items: center;
+  width: 20px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+}
+
+.node-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+}
+
+.node-name {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-badge {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  color: white;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Input de edición */
+.node-input {
+  padding: 4px 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-purple);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
+  font-size: 13px;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
