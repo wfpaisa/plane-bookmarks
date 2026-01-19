@@ -1,326 +1,262 @@
 import "./App.css";
-import "react-complex-tree/lib/style-modern.css";
-import { useState, useRef, useMemo, useCallback } from "react";
+import clsx from "clsx";
 import {
-  UncontrolledTreeEnvironment,
+  type CursorProps,
+  NodeApi,
+  type NodeRendererProps,
   Tree,
-  StaticTreeDataProvider,
-  type TreeItem,
-  type TreeItemIndex,
-  type TreeRef,
-} from "react-complex-tree";
-import { bookmarksData, type BookmarkData } from "./data/bookmarks";
-import cx from "classnames";
-
-// Interfaz para los items del árbol
-interface TreeItemData {
-  title: string;
-  nombre: string;
-  fechaCreacion: string;
-  icono: string;
-  tags: string[];
-  link?: string;
-}
+  TreeApi,
+} from "react-arborist";
+import { gmailData, type GmailItem } from "./data/bookmarks";
+import {
+  MdSearch,
+  MdFilterList,
+  MdViewModule,
+  MdFolder,
+  MdBookmark,
+  MdArrowDropDown,
+  MdArrowRight,
+} from "react-icons/md";
+import { useState, useMemo, useCallback } from "react";
 
 function App() {
-  const [search, setSearch] = useState("");
-  const [expandedItems, setExpandedItems] = useState<TreeItemIndex[]>([]);
-  const tree = useRef<TreeRef<TreeItemData>>(null);
+  const [term, setTerm] = useState("");
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const containerRef = useCallback((el: HTMLDivElement | null) => {
+    if (el) {
+      setDimensions({
+        width: el.clientWidth,
+        height: el.clientHeight,
+      });
+    }
+  }, []);
 
-  // Función para convertir los datos de la BD al formato del árbol
-  const convertToTreeItems = (
-    data: BookmarkData[],
-  ): Record<TreeItemIndex, TreeItem<TreeItemData>> => {
-    const items: Record<TreeItemIndex, TreeItem<TreeItemData>> = {};
-
-    // Crear el item root
-    items.root = {
-      index: "root",
-      isFolder: true,
-      children: data.map((item) => item.key),
-      data: {
-        title: "Bookmarks",
-        nombre: "Bookmarks",
-        fechaCreacion: new Date().toISOString(),
-        icono: "📑",
-        tags: [],
-      },
-    };
-
-    // Función recursiva para procesar cada nodo
-    const processNode = (node: BookmarkData) => {
-      const hasChildren = node.children && node.children.length > 0;
-
-      items[node.key] = {
-        index: node.key,
-        isFolder: hasChildren,
-        children: hasChildren ? node.children!.map((child) => child.key) : [],
-        data: {
-          title: node.title,
-          nombre: node.nombre,
-          fechaCreacion: node.fechaCreacion,
-          icono: node.icono,
-          tags: node.tags,
-          link: node.link,
-        },
-      };
-
-      // Procesar recursivamente los hijos
-      if (hasChildren) {
-        node.children!.forEach((child) => processNode(child));
-      }
-    };
-
-    // Procesar todos los nodos de nivel superior
-    data.forEach((node) => processNode(node));
-
-    return items;
+  const globalTree = (tree?: TreeApi<GmailItem> | null) => {
+    // @ts-ignore
+    window.tree = tree;
   };
 
-  // Convertir los datos de la "base de datos" al formato del árbol
-  const items = useMemo(() => convertToTreeItems(bookmarksData), []);
+  // Calcular estadísticas
+  const stats = useMemo(() => {
+    const countItems = (
+      items: GmailItem[],
+    ): { total: number; unread: number; folders: number } => {
+      let total = 0;
+      let unread = 0;
+      let folders = 0;
 
-  const dataProvider = useMemo(
-    () =>
-      new StaticTreeDataProvider(items, (item, newName) => ({
-        ...item,
-        data: {
-          ...item.data,
-          nombre: newName,
-          title: `${item.data.icono} ${newName}`,
-        },
-      })),
-    [items],
-  );
-
-  // Función recursiva para encontrar todos los items que coinciden con la búsqueda
-  const findAllMatchingItems = useCallback(
-    async (
-      search: string,
-      searchRoot: TreeItemIndex = "root",
-    ): Promise<TreeItemIndex[]> => {
-      const item = await dataProvider.getTreeItem(searchRoot);
-      const matches: TreeItemIndex[] = [];
-
-      // Buscar en título, nombre y tags
-      const searchLower = search.toLowerCase();
-      const matchesTitle = item.data.title.toLowerCase().includes(searchLower);
-      const matchesNombre = item.data.nombre
-        .toLowerCase()
-        .includes(searchLower);
-      const matchesTags = item.data.tags.some((tag: string) =>
-        tag.toLowerCase().includes(searchLower),
-      );
-
-      if (
-        (matchesTitle || matchesNombre || matchesTags) &&
-        item.index !== "root"
-      ) {
-        matches.push(item.index);
-      }
-
-      // Buscar recursivamente en los hijos
-      if (item.children) {
-        const childrenMatches = await Promise.all(
-          item.children.map((child) => findAllMatchingItems(search, child)),
-        );
-        childrenMatches.forEach((childMatches) => {
-          matches.push(...childMatches);
-        });
-      }
-
-      return matches;
-    },
-    [dataProvider],
-  );
-
-  // Función para obtener todos los ancestros de un item
-  const getAncestors = useCallback(
-    async (itemIndex: TreeItemIndex): Promise<TreeItemIndex[]> => {
-      const ancestors: TreeItemIndex[] = [];
-
-      const findParent = async (
-        current: TreeItemIndex,
-        searchIn: TreeItemIndex = "root",
-      ): Promise<boolean> => {
-        const item = await dataProvider.getTreeItem(searchIn);
-
-        if (item.children?.includes(current)) {
-          if (searchIn !== "root") {
-            ancestors.push(searchIn);
-          }
-          return true;
+      items.forEach((item) => {
+        if (item.children && item.children.length > 0) {
+          folders++;
+          const childStats = countItems(item.children);
+          total += childStats.total;
+          unread += childStats.unread;
+          folders += childStats.folders;
+        } else {
+          total++;
+          if (item.unread) unread += item.unread;
         }
+      });
 
-        if (item.children) {
-          for (const child of item.children) {
-            if (await findParent(current, child)) {
-              if (searchIn !== "root") {
-                ancestors.push(searchIn);
-              }
-              return true;
-            }
-          }
-        }
-
-        return false;
-      };
-
-      await findParent(itemIndex);
-      return ancestors.reverse();
-    },
-    [dataProvider],
-  );
-
-  // Efecto para manejar el filtrado
-  const handleFilter = useCallback(
-    async (searchTerm: string) => {
-      if (!searchTerm.trim()) {
-        // Si no hay búsqueda, contraer todo
-        setExpandedItems([]);
-        return;
-      }
-
-      const matches = await findAllMatchingItems(searchTerm);
-
-      if (matches.length > 0) {
-        // Obtener todos los ancestros de los items coincidentes
-        const allAncestors = new Set<TreeItemIndex>();
-
-        for (const match of matches) {
-          const ancestors = await getAncestors(match);
-          ancestors.forEach((ancestor) => allAncestors.add(ancestor));
-        }
-
-        // Expandir todos los ancestros
-        const itemsToExpand = Array.from(allAncestors);
-        setExpandedItems(itemsToExpand);
-      } else {
-        setExpandedItems([]);
-      }
-    },
-    [findAllMatchingItems, getAncestors],
-  );
-
-  // Calcular viewState basado en el filtro
-  const viewState = useMemo(() => {
-    return {
-      "bookmarks-tree": {
-        expandedItems,
-      },
+      return { total, unread, folders };
     };
-  }, [expandedItems]);
 
-  // Manejar cambio de búsqueda con efecto
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newSearch = e.target.value;
-      setSearch(newSearch);
-      handleFilter(newSearch);
-    },
-    [handleFilter],
-  );
+    return countItems(gmailData);
+  }, []);
 
   return (
-    <>
-      <div style={{ marginBottom: "20px", padding: "10px" }}>
-        <input
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Filtrar bookmarks..."
-          style={{ padding: "8px", marginRight: "10px", width: "300px" }}
-        />
-        {search && (
-          <button
-            onClick={() => {
-              setSearch("");
-              handleFilter("");
-            }}
-            style={{ padding: "8px 16px" }}
-          >
-            Limpiar
-          </button>
-        )}
-      </div>
-      <UncontrolledTreeEnvironment
-        dataProvider={dataProvider}
-        getItemTitle={(item) => item.data.title}
-        viewState={viewState}
-        canDragAndDrop={true}
-        canDropOnFolder={true}
-        canReorderItems={true}
-        onExpandItem={(item) => {
-          setExpandedItems((prev) => [...prev, item.index]);
-        }}
-        onCollapseItem={(item) => {
-          setExpandedItems((prev) => prev.filter((id) => id !== item.index));
-        }}
-        renderItem={({ item, depth, children, title, context, arrow }) => {
-          const InteractiveComponent = context.isRenaming ? "div" : "button";
-          const type = context.isRenaming ? undefined : "button";
-          return (
-            <li
-              {...(context.itemContainerWithChildrenProps as any)}
-              className={cx(
-                "rct-tree-item-li",
-                item.isFolder && "rct-tree-item-li-isFolder",
-                context.isSelected && "rct-tree-item-li-selected",
-                context.isExpanded && "rct-tree-item-li-expanded",
-                context.isFocused && "rct-tree-item-li-focused",
-                context.isDraggingOver && "rct-tree-item-li-dragging-over",
-                context.isSearchMatching && "rct-tree-item-li-search-match",
-              )}
-            >
-              <div
-                {...(context.itemContainerWithoutChildrenProps as any)}
-                style={{ paddingLeft: `${(depth + 1) * 10}px` }}
-                className={cx(
-                  "rct-tree-item-title-container",
-                  item.isFolder && "rct-tree-item-title-container-isFolder",
-                  context.isSelected &&
-                    "rct-tree-item-title-container-selected",
-                  context.isExpanded &&
-                    "rct-tree-item-title-container-expanded",
-                  context.isFocused && "rct-tree-item-title-container-focused",
-                  context.isDraggingOver &&
-                    "rct-tree-item-title-container-dragging-over",
-                  context.isSearchMatching &&
-                    "rct-tree-item-title-container-search-match",
-                )}
-              >
-                {arrow}
-                <InteractiveComponent
-                  type={type}
-                  {...(context.interactiveElementProps as any)}
-                  className={cx("rct-tree-item-button")}
-                >
-                  {title}
-                  {item.data.link && (
-                    <a
-                      href={item.data.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ marginLeft: "8px", fontSize: "0.8em" }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      🔗
-                    </a>
-                  )}
-                </InteractiveComponent>
+    <div className="app-container">
+      {/* Sidebar */}
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h1 className="app-title">Bookmarks</h1>
+          <p className="app-subtitle">Manager Pro</p>
+        </div>
+
+        <div className="search-section">
+          <div className="search-wrapper">
+            <MdSearch className="search-icon" size={16} />
+            <input
+              type="text"
+              value={term}
+              onChange={(e) => setTerm(e.currentTarget.value)}
+              placeholder="Buscar bookmarks..."
+              className="search-input"
+            />
+          </div>
+        </div>
+
+        <div className="stats-section">
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-label">Total Items</div>
+              <div className="stat-value">{stats.total}</div>
+              <div className="stat-trend">
+                +{Math.floor(stats.total * 0.12)} este mes
               </div>
-              {children}
-            </li>
-          );
-        }}
-      >
-        <Tree
-          treeId="bookmarks-tree"
-          rootItem="root"
-          treeLabel="Bookmarks"
-          ref={tree}
-        />
-      </UncontrolledTreeEnvironment>
-    </>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">Carpetas</div>
+              <div className="stat-value">{stats.folders}</div>
+              <div className="stat-trend">{stats.folders} activas</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">Sin leer</div>
+              <div className="stat-value">{stats.unread}</div>
+              <div className="stat-trend">Requieren atención</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="help-section">
+          <div className="help-title">Atajos rápidos</div>
+          <div className="shortcut-list">
+            <div className="shortcut-item">
+              <span>Navegar</span>
+              <span className="shortcut-key">↑↓</span>
+            </div>
+            <div className="shortcut-item">
+              <span>Abrir/Cerrar</span>
+              <span className="shortcut-key">Space</span>
+            </div>
+            <div className="shortcut-item">
+              <span>Renombrar</span>
+              <span className="shortcut-key">Enter</span>
+            </div>
+            <div className="shortcut-item">
+              <span>Nuevo</span>
+              <span className="shortcut-key">A</span>
+            </div>
+            <div className="shortcut-item">
+              <span>Carpeta</span>
+              <span className="shortcut-key">⇧A</span>
+            </div>
+            <div className="shortcut-item">
+              <span>Eliminar</span>
+              <span className="shortcut-key">Del</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="main-content">
+        <div className="content-header">
+          <div className="header-left">
+            <h1>Explorador de Bookmarks</h1>
+            <p className="header-subtitle">
+              Organiza y gestiona tus recursos de forma eficiente
+            </p>
+          </div>
+          <div className="header-actions">
+            <div className="chip active">
+              <MdViewModule size={14} />
+              <span>Vista árbol</span>
+            </div>
+            <div className="chip">
+              <MdFilterList size={14} />
+              <span>Filtros</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="tree-container">
+          <div ref={containerRef} className="tree-wrapper">
+            {dimensions.width > 0 && dimensions.height > 0 && (
+              <Tree
+                ref={globalTree}
+                initialData={gmailData}
+                width={dimensions.width}
+                height={dimensions.height}
+                rowHeight={40}
+                renderCursor={Cursor}
+                searchTerm={term}
+                paddingBottom={40}
+                disableEdit={(data) => data.readOnly}
+                disableDrop={({ parentNode, dragNodes }) => {
+                  if (
+                    parentNode.data.name === "Categories" &&
+                    dragNodes.some((drag) => drag.data.name === "Inbox")
+                  ) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+                }}
+              >
+                {Node}
+              </Tree>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Node({ node, style, dragHandle }: NodeRendererProps<GmailItem>) {
+  const Icon = node.isInternal ? MdFolder : MdBookmark;
+  return (
+    <div
+      ref={dragHandle}
+      style={style}
+      className={clsx("tree-node", node.state, {
+        selected: node.isSelected,
+        editing: node.isEditing,
+      })}
+      onClick={() => node.isInternal && node.toggle()}
+    >
+      <FolderArrow node={node} />
+      <span className="node-icon">
+        <Icon size={18} />
+      </span>
+      <span className="node-name">
+        {node.isEditing ? <Input node={node} /> : node.data.name}
+      </span>
+      {node.data.unread !== undefined && node.data.unread > 0 && (
+        <span className="node-badge">{node.data.unread}</span>
+      )}
+    </div>
+  );
+}
+
+function Input({ node }: { node: NodeApi<GmailItem> }) {
+  return (
+    <input
+      autoFocus
+      type="text"
+      defaultValue={node.data.name}
+      onFocus={(e) => e.currentTarget.select()}
+      onBlur={() => node.reset()}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") node.reset();
+        if (e.key === "Enter") node.submit(e.currentTarget.value);
+      }}
+      className="node-input"
+    />
+  );
+}
+
+function FolderArrow({ node }: { node: NodeApi<GmailItem> }) {
+  if (node.isLeaf) return <span className="node-arrow"></span>;
+  return (
+    <span className="node-arrow">
+      {node.isOpen ? <MdArrowDropDown size={20} /> : <MdArrowRight size={20} />}
+    </span>
+  );
+}
+
+function Cursor({ top, left }: CursorProps) {
+  return (
+    <div
+      className="drop-cursor"
+      style={{
+        top,
+        left,
+      }}
+    />
   );
 }
 
