@@ -11,6 +11,11 @@ interface MainContentProps {
   data: BookmarkItem[];
   searchTerm: string;
   onDataImport?: (newData: BookmarkItem[]) => void;
+  onCreate?: (args: {
+    parentId: string | null;
+    index: number;
+    type: "leaf" | "internal";
+  }) => { id: string } | null;
   onMove?: (args: {
     dragIds: string[];
     parentId: string | null;
@@ -24,6 +29,7 @@ export function MainContent({
   data,
   searchTerm,
   onDataImport,
+  onCreate,
   onMove,
   onRename,
   onDelete,
@@ -86,6 +92,7 @@ export function MainContent({
             <Tree
               ref={globalTree}
               data={data}
+              onCreate={onCreate}
               onMove={onMove}
               onRename={onRename}
               onDelete={onDelete}

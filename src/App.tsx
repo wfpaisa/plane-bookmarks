@@ -98,6 +98,47 @@ function App() {
     setData(result);
   };
 
+  const handleCreate = ({
+    parentId,
+    index,
+    type,
+  }: {
+    parentId: string | null;
+    index: number;
+    type: "leaf" | "internal";
+  }) => {
+    const newId = Date.now().toString();
+    const newItem: BookmarkItem = {
+      id: newId,
+      name: type === "internal" ? "Nueva Carpeta" : "Nuevo Item",
+      ...(type === "internal" && { children: [] }),
+    };
+
+    const insertNode = (items: BookmarkItem[]): BookmarkItem[] => {
+      if (parentId === null) {
+        const result = [...items];
+        result.splice(index, 0, newItem);
+        return result;
+      }
+
+      return items.map((item) => {
+        if (item.id === parentId) {
+          const children = item.children || [];
+          const newChildren = [...children];
+          newChildren.splice(index, 0, newItem);
+          return { ...item, children: newChildren };
+        }
+        if (item.children) {
+          return { ...item, children: insertNode(item.children) };
+        }
+        return item;
+      });
+    };
+
+    setData(insertNode(data));
+    return { id: newId };
+  };
+
   const handleRename = ({ id, name }: { id: string; name: string }) => {
     const renameNode = (items: BookmarkItem[]): BookmarkItem[] => {
       return items.map((item) => {
@@ -137,6 +178,7 @@ function App() {
         data={data}
         searchTerm={term}
         onDataImport={handleDataImport}
+        onCreate={handleCreate}
         onMove={handleMove}
         onRename={handleRename}
         onDelete={handleDelete}
