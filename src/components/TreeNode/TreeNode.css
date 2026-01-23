@@ -28,6 +28,11 @@
 
 .tree-node.editing {
   background: var(--bg-elevated);
+  min-height: 40px;
+  height: auto;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  align-items: flex-start;
 }
 
 .node-arrow {
@@ -97,6 +102,18 @@
   outline: none;
   font-size: 13px;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.node-input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.node-input-form .node-input {
+  width: 100%;
 }
 
 /* Animations */

@@ -1,23 +1,47 @@
 import { NodeApi } from "react-arborist";
 import { type BookmarkItem } from "../../data/bookmarks";
+import { BookmarkModal } from "../BookmarkModal";
 
 interface NodeInputProps {
   node: NodeApi<BookmarkItem>;
 }
 
 export function NodeInput({ node }: NodeInputProps) {
+  const handleSave = (data: { name: string; url: string; tags: string[] }) => {
+    // Si es una carpeta (isInternal), solo actualizar el nombre
+    if (node.isInternal) {
+      node.submit(data.name);
+      return;
+    }
+
+    // Para bookmarks (hojas), actualizar todos los campos
+    const updatedData = {
+      ...node.data,
+      name: data.name,
+      url: data.url,
+      tags: data.tags,
+    };
+
+    // Actualizar los datos del nodo
+    Object.assign(node.data, updatedData);
+
+    // Enviar solo el nombre al submit (por compatibilidad)
+    node.submit(data.name);
+  };
+
+  const handleCancel = () => {
+    node.reset();
+  };
+
   return (
-    <input
-      autoFocus
-      type="text"
-      defaultValue={node.data.name}
-      onFocus={(e) => e.currentTarget.select()}
-      onBlur={() => node.reset()}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") node.reset();
-        if (e.key === "Enter") node.submit(e.currentTarget.value);
-      }}
-      className="node-input"
+    <BookmarkModal
+      isOpen={true}
+      isFolder={node.isInternal}
+      initialName={node.data.name}
+      initialUrl={node.data.url}
+      initialTags={node.data.tags || []}
+      onSave={handleSave}
+      onCancel={handleCancel}
     />
   );
 }
