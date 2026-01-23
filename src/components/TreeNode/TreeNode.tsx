@@ -34,6 +34,9 @@ export function TreeNode({
       <span className="node-name">
         {node.isEditing ? <NodeInput node={node} /> : node.data.name}
       </span>
+      {node.isLeaf && node.data.tags && node.data.tags.length > 0 && (
+        <span className="node-tags">{node.data.tags.join(", ")}</span>
+      )}
       {node.isLeaf && node.data.url && (
         <span className="node-url">
           <a href={node.data.url} target="_blank" rel="noopener noreferrer">
@@ -45,9 +48,6 @@ export function TreeNode({
             />
           </a>
         </span>
-      )}
-      {node.isLeaf && node.data.tags && node.data.tags.length > 0 && (
-        <span className="node-tags">Tags: {node.data.tags.join(", ")}</span>
       )}
     </div>
   );

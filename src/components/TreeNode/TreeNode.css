@@ -138,3 +138,8 @@
     color: var(--accent-purple);
   }
 }
+
+.isFocused {
+  border: 2px solid red !important;
+  box-shadow: none;
+}
