@@ -84,9 +84,12 @@ export function MainContent({
   }, [data]);
 
   // Handler para toggle de carpetas
-  const handleToggle = useCallback((id: string) => {
-    onToggle?.(id);
-  }, [onToggle]);
+  const handleToggle = useCallback(
+    (id: string) => {
+      onToggle?.(id);
+    },
+    [onToggle],
+  );
 
   return (
     <div className="main-content">
