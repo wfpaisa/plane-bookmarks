@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import "./BookmarkModal.css";
 
@@ -54,11 +55,11 @@ export function BookmarkModal({
     };
 
     document.addEventListener("keydown", handleEscape);
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, [isOpen, onCancel]);
 
@@ -81,7 +82,7 @@ export function BookmarkModal({
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div className="modal-overlay">
       <div className="modal-container" ref={modalRef}>
         <div className="modal-header">
@@ -165,4 +166,6 @@ export function BookmarkModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

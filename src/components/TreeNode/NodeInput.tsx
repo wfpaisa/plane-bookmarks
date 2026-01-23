@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NodeApi } from "react-arborist";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { BookmarkModal } from "../BookmarkModal";
@@ -7,6 +8,11 @@ interface NodeInputProps {
 }
 
 export function NodeInput({ node }: NodeInputProps) {
+  // Hacer scroll al nodo cuando entra en modo edición
+  useEffect(() => {
+    node.tree.scrollTo(node.id, "center");
+  }, [node]);
+
   const handleSave = (data: { name: string; url: string; tags: string[] }) => {
     // Si es una carpeta (isInternal), solo actualizar el nombre
     if (node.isInternal) {
