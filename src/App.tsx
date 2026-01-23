@@ -222,6 +222,24 @@ function App() {
     syncWithServer(newData);
   };
 
+  const handleToggle = (id: string) => {
+    const toggleNode = (items: BookmarkItem[]): BookmarkItem[] => {
+      return items.map((item) => {
+        if (item.id === id) {
+          return { ...item, isOpen: !item.isOpen };
+        }
+        if (item.children) {
+          return { ...item, children: toggleNode(item.children) };
+        }
+        return item;
+      });
+    };
+
+    const newData = toggleNode(data);
+    setData(newData);
+    syncWithServer(newData);
+  };
+
   if (isLoading) {
     return (
       <div
@@ -251,6 +269,7 @@ function App() {
         onMove={handleMove}
         onRename={handleRename}
         onDelete={handleDelete}
+        onToggle={handleToggle}
       />
       {!serverConnected && (
         <div

@@ -4,7 +4,7 @@ import { type BookmarkItem } from "../../data/bookmarks";
 import { TreeNode } from "../TreeNode";
 import { DropCursor } from "../DropCursor";
 import { BookmarkImporter } from "../BookmarkImporter";
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useMemo } from "react";
 import "./MainContent.css";
 
 interface MainContentProps {
@@ -24,6 +24,7 @@ interface MainContentProps {
   }) => void;
   onRename?: (args: { id: string; name: string }) => void;
   onDelete?: (args: { ids: string[] }) => void;
+  onToggle?: (id: string) => void;
 }
 
 export function MainContent({
@@ -35,6 +36,7 @@ export function MainContent({
   onMove,
   onRename,
   onDelete,
+  onToggle,
 }: MainContentProps) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const treeRef = useRef<TreeApi<BookmarkItem> | null>(null);
@@ -65,6 +67,26 @@ export function MainContent({
   const handleImport = (newData: BookmarkItem[]) => {
     onDataImport?.(newData);
   };
+
+  // Crear initialOpenState desde los datos
+  const initialOpenState = useMemo(() => {
+    const openState: Record<string, boolean> = {};
+    const buildOpenState = (items: BookmarkItem[]) => {
+      items.forEach((item) => {
+        if (item.children && item.children.length > 0) {
+          openState[item.id] = item.isOpen ?? false;
+          buildOpenState(item.children);
+        }
+      });
+    };
+    buildOpenState(data);
+    return openState;
+  }, [data]);
+
+  // Handler para toggle de carpetas
+  const handleToggle = useCallback((id: string) => {
+    onToggle?.(id);
+  }, [onToggle]);
 
   return (
     <div className="main-content">
@@ -104,6 +126,8 @@ export function MainContent({
               onMove={onMove}
               onRename={onRename}
               onDelete={onDelete}
+              onToggle={handleToggle}
+              initialOpenState={initialOpenState}
               width={dimensions.width}
               height={dimensions.height}
               rowHeight={40}

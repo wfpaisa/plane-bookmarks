@@ -105,7 +105,8 @@ Verifica el estado del servidor.
 
 1. **Carga inicial**: Al abrir la aplicación, se cargan los bookmarks desde el servidor
 2. **Sincronización automática**: Cada cambio (crear, mover, renombrar, eliminar) se sincroniza automáticamente con el servidor
-3. **Modo offline**: Si el servidor no está disponible, la aplicación funciona en modo local y muestra una advertencia
+3. **Estado de carpetas persistente**: El estado abierto/cerrado de las carpetas se guarda y restaura automáticamente
+4. **Modo offline**: Si el servidor no está disponible, la aplicación funciona en modo local y muestra una advertencia
 
 ## Archivo de Datos
 
@@ -133,7 +134,8 @@ VITE_API_URL=http://localhost:3001/api
 ✅ Modo offline con datos locales  
 ✅ API REST completa  
 ✅ Almacenamiento en archivo JSON  
-✅ Soporte para archivos grandes (hasta 50MB)
+✅ Soporte para archivos grandes (hasta 50MB)  
+✅ **Estado abierto/cerrado de carpetas persistente**
 
 ## Solución de Problemas
 
