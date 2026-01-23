@@ -33,6 +33,7 @@ export function BookmarkModal({
   const [url, setUrl] = useState(initialUrl);
   const [tags, setTags] = useState(initialTags.join(", "));
   const [icon, setIcon] = useState(initialIcon);
+  const [isLoadingFavicon, setIsLoadingFavicon] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousIsOpen = useRef(isOpen);
@@ -90,42 +91,46 @@ export function BookmarkModal({
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0),
+      ...(icon.trim().length > 0 ? { icon } : {}),
     };
 
-    // Si no es una carpeta y tiene URL
-    if (!isFolder && trimmedUrl) {
-      // Si ya tiene icono, usarlo; si no, generar uno nuevo
-      if (icon) {
-        onSave({ ...bookmarkData, icon });
-      } else {
-        getFaviconAsBase64(trimmedUrl)
-          .then((iconBase64) => {
-            onSave({ ...bookmarkData, icon: iconBase64 });
-          })
-          .catch(() => {
-            // Si falla, guardar sin icono
-            onSave(bookmarkData);
-          });
-      }
-    } else {
-      onSave(bookmarkData);
-    }
+    onSave(bookmarkData);
   };
 
-  const getFaviconAsBase64 = async (url: string): Promise<string> => {
+  const getFaviconAsBase64 = async (url: string): Promise<string | null> => {
     try {
       const response = await fetch(
         `http://localhost:3001/api/favicon?url=${encodeURIComponent(url)}`,
       );
 
       if (!response.ok) {
-        throw new Error("No se pudo obtener el favicon");
+        return null;
       }
 
       const data = await response.json();
-      return data.icon;
+      return data.icon || null;
     } catch (error) {
-      throw error;
+      console.warn("No se pudo obtener el favicon:", error);
+      return null;
+    }
+  };
+
+  const handleFetchFavicon = async () => {
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) {
+      return;
+    }
+
+    setIsLoadingFavicon(true);
+    try {
+      const faviconBase64 = await getFaviconAsBase64(trimmedUrl);
+      if (faviconBase64) {
+        setIcon(faviconBase64);
+      }
+    } catch (error) {
+      console.error("Error al obtener favicon:", error);
+    } finally {
+      setIsLoadingFavicon(false);
     }
   };
 
@@ -185,24 +190,45 @@ export function BookmarkModal({
                 />
               </div>
 
-              {icon && (
-                <div className="form-group">
-                  <label className="form-label">
-                    <Icon icon="solar:gallery-bold" width={16} height={16} />
-                    Favicon
-                  </label>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
+              <div className="form-group">
+                <label className="form-label">
+                  <Icon icon="solar:gallery-bold" width={16} height={16} />
+                  Favicon
+                </label>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  {icon && (
                     <img
                       src={icon}
                       alt="favicon"
                       style={{ width: 24, height: 24 }}
                     />
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleFetchFavicon}
+                    disabled={!url.trim() || isLoadingFavicon}
+                    className="btn-save"
+                    style={{ padding: "4px 12px", fontSize: "12px" }}
+                    title="Obtener favicon"
+                  >
+                    {isLoadingFavicon ? (
+                      <Icon
+                        icon="svg-spinners:90-ring-with-bg"
+                        width={14}
+                        height={14}
+                      />
+                    ) : (
+                      <Icon icon="solar:download-bold" width={14} height={14} />
+                    )}
+                    {isLoadingFavicon ? "Obteniendo..." : "Obtener favicon"}
+                  </button>
+                  {icon && (
                     <button
                       type="button"
                       onClick={(e) => {
@@ -218,11 +244,10 @@ export function BookmarkModal({
                         width={14}
                         height={14}
                       />
-                      Eliminar
                     </button>
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               <div className="form-group">
                 <label className="form-label">

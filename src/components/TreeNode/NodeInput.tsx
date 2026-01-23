@@ -26,24 +26,23 @@ export function NodeInput({ node }: NodeInputProps) {
     }
 
     // Para bookmarks (hojas), actualizar todos los campos
-    const updatedData = {
+    const updatedData: BookmarkItem = {
       ...node.data,
       name: data.name,
       url: data.url,
       tags: data.tags,
     };
 
-    // Manejar el icono: si se proporciona, usarlo; si es undefined, mantener el actual
-    if (data.icon !== undefined) {
-      if (data.icon === "") {
-        delete updatedData.icon;
-      } else {
-        updatedData.icon = data.icon;
-      }
+    // Manejar el icono: si está vacío, eliminarlo; si tiene valor, asignarlo
+
+    if (data.icon && data.icon.trim() !== "") {
+      updatedData.icon = data.icon;
+    } else {
+      updatedData.icon = "";
     }
 
-    // Actualizar los datos del nodo
-    Object.assign(node.data, updatedData);
+    // Reemplazar completamente node.data con updatedData
+    node.data = updatedData;
 
     // Enviar solo el nombre al submit (por compatibilidad)
     node.submit(data.name);

@@ -100,33 +100,49 @@ app.get("/api/favicon", async (req, res) => {
     }
 
     const urlObj = new URL(url);
-    const faviconUrl = `${urlObj.protocol}//${urlObj.hostname}/favicon.ico`;
+    const baseUrl = `${urlObj.protocol}//${urlObj.hostname}`;
 
-    // Descargar el favicon
-    const response = await fetch(faviconUrl);
+    // Usar servicio de Google como fallback confiable
+    const googleFavicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=128`;
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+      // Intentar el servicio de Google directamente (más confiable)
+      const response = await fetch(googleFavicon, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+        redirect: "follow",
+      });
+
+      if (response.ok) {
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        if (buffer.length > 0) {
+          // Procesar con sharp
+          const processedBuffer = await sharp(buffer)
+            .resize(32, 32, {
+              fit: "contain",
+              background: { r: 0, g: 0, b: 0, alpha: 0 },
+            })
+            .png({ quality: 80, compressionLevel: 9 })
+            .toBuffer();
+
+          const base64 = processedBuffer.toString("base64");
+          const dataUrl = `data:image/png;base64,${base64}`;
+
+          return res.json({ success: true, icon: dataUrl });
+        }
+      }
+    } catch (err) {
+      // Si Google falla, devolver un emoji por defecto
+      console.log(`Favicon no disponible para ${urlObj.hostname}`);
     }
 
-    // Convertir a buffer
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // Procesar con sharp: convertir a PNG y redimensionar a 32x32
-    const processedBuffer = await sharp(buffer)
-      .resize(32, 32, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-      .png({ quality: 80, compressionLevel: 9 })
-      .toBuffer();
-
-    // Convertir a base64
-    const base64 = processedBuffer.toString("base64");
-    const dataUrl = `data:image/png;base64,${base64}`;
-
-    res.json({ success: true, icon: dataUrl });
+    // Devolver null si no se puede obtener el favicon
+    return res.json({ success: true, icon: null });
   } catch (error) {
     console.error("Error fetching favicon:", error);
-    res.status(500).json({ error: "Error al obtener el favicon" });
+    // Devolver null en lugar de error para que la app siga funcionando
+    res.json({ success: true, icon: null });
   }
 });
 

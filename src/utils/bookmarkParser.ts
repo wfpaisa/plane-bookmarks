@@ -10,6 +10,7 @@ export function parseBookmarkHTML(htmlContent: string): BookmarkItem[] {
       const href = element.getAttribute("HREF");
       const addDate = element.getAttribute("ADD_DATE");
       const icon = element.getAttribute("ICON");
+
       return {
         id: String(idCounter++),
         name: element.textContent || "Sin título",
