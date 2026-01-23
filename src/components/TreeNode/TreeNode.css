@@ -2,7 +2,7 @@
 .tree-node {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
   padding: 0 16px;
   cursor: pointer;
   background: transparent;
@@ -43,6 +43,7 @@
   width: 20px;
   color: var(--text-tertiary);
   transition: transform 0.2s ease;
+  margin-left: 8px;
 }
 
 .node-icon {
