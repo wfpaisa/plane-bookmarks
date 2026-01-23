@@ -112,7 +112,9 @@ export function BookmarkModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="form-input"
-              placeholder={isFolder ? "Nombre de carpeta" : "Nombre del bookmark"}
+              placeholder={
+                isFolder ? "Nombre de carpeta" : "Nombre del bookmark"
+              }
               required
             />
           </div>

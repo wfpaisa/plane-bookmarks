@@ -23,9 +23,12 @@ export function TreeNode({
       <FolderArrow node={node} />
       <span className="node-icon">
         {node.isInternal ? (
-          <Icon icon="solar:folder-bold" width={18} height={18} />
-        ) : (
+          // <Icon icon="solar:bookmark-linear" width={18} height={18} />
+          <i></i>
+        ) : node.data.icon && node.data.icon.trim() !== "" ? (
           <img src={node.data.icon} alt="" style={{ width: 18, height: 18 }} />
+        ) : (
+          <Icon icon="solar:bookmark-linear" width={18} height={18} />
         )}
       </span>
       <span className="node-name">
@@ -55,9 +58,9 @@ function FolderArrow({ node }: { node: NodeApi<BookmarkItem> }) {
   return (
     <span className="node-arrow">
       {node.isOpen ? (
-        <Icon icon="solar:alt-arrow-down-bold" width={20} height={20} />
+        <Icon icon="solar:minus-square-line-duotone" width={24} height={24} />
       ) : (
-        <Icon icon="solar:alt-arrow-right-bold" width={20} height={20} />
+        <Icon icon="solar:add-square-line-duotone" width={24} height={24} />
       )}
     </span>
   );

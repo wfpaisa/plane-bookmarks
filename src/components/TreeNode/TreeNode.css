@@ -23,7 +23,9 @@
     rgba(139, 92, 246, 0.15) 0%,
     rgba(236, 72, 153, 0.08) 100%
   );
-  border-left: 2px solid var(--accent-purple);
+  box-shadow:
+    inset 2px 0 0 0 var(--accent-purple),
+    0 0 8px rgba(139, 92, 246, 0.08);
 }
 
 .tree-node.editing {
