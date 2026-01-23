@@ -14,8 +14,8 @@ const DATA_FILE = path.join(__dirname, "data", "bookmarks.json");
 // Middleware
 app.use(cors());
 // Aumentar el límite del tamaño del body a 50MB para archivos grandes de bookmarks
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Asegurar que la carpeta data existe
 async function ensureDataDirectory() {

@@ -156,6 +156,7 @@ VITE_API_URL=http://localhost:3001/api
 ### Error "PayloadTooLargeError"
 
 Si recibes este error al importar archivos grandes:
+
 - El servidor está configurado para aceptar hasta 50MB
 - Si necesitas más espacio, edita `server/server.ts` y aumenta el valor en `express.json({ limit: '50mb' })`
 - Considera dividir archivos muy grandes en múltiples importaciones
