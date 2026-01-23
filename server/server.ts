@@ -3,6 +3,7 @@ import cors from "cors";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,6 +87,46 @@ app.delete("/api/bookmarks", async (req, res) => {
   } catch (error) {
     console.error("Error clearing bookmarks:", error);
     res.status(500).json({ error: "Error al limpiar los bookmarks" });
+  }
+});
+
+// GET - Obtener favicon de una URL
+app.get("/api/favicon", async (req, res) => {
+  try {
+    const { url } = req.query;
+
+    if (!url || typeof url !== "string") {
+      return res.status(400).json({ error: "URL requerida" });
+    }
+
+    const urlObj = new URL(url);
+    const faviconUrl = `${urlObj.protocol}//${urlObj.hostname}/favicon.ico`;
+
+    // Descargar el favicon
+    const response = await fetch(faviconUrl);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Convertir a buffer
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Procesar con sharp: convertir a PNG y redimensionar a 32x32
+    const processedBuffer = await sharp(buffer)
+      .resize(32, 32, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .png({ quality: 80, compressionLevel: 9 })
+      .toBuffer();
+
+    // Convertir a base64
+    const base64 = processedBuffer.toString("base64");
+    const dataUrl = `data:image/png;base64,${base64}`;
+
+    res.json({ success: true, icon: dataUrl });
+  } catch (error) {
+    console.error("Error fetching favicon:", error);
+    res.status(500).json({ error: "Error al obtener el favicon" });
   }
 });
 

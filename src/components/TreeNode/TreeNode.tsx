@@ -22,14 +22,17 @@ export function TreeNode({
     >
       <FolderArrow node={node} />
       <span className="node-icon">
-        {node.isInternal ? (
-          // <Icon icon="solar:bookmark-linear" width={18} height={18} />
-          <i></i>
-        ) : node.data.icon && node.data.icon.trim() !== "" ? (
-          <img src={node.data.icon} alt="" style={{ width: 18, height: 18 }} />
-        ) : (
-          <Icon icon="solar:bookmark-linear" width={18} height={18} />
-        )}
+        {node.isLeaf ? (
+          node.data.icon && node.data.icon.trim() !== "" ? (
+            <img
+              src={node.data.icon}
+              alt=""
+              style={{ width: 18, height: 18 }}
+            />
+          ) : (
+            <Icon icon="solar:bookmark-linear" width={18} height={18} />
+          )
+        ) : null}
       </span>
       <span className="node-name">
         {node.isEditing ? <NodeInput node={node} /> : node.data.name}

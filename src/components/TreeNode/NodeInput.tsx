@@ -13,7 +13,12 @@ export function NodeInput({ node }: NodeInputProps) {
     node.tree.scrollTo(node.id, "center");
   }, [node]);
 
-  const handleSave = (data: { name: string; url: string; tags: string[] }) => {
+  const handleSave = (data: {
+    name: string;
+    url: string;
+    tags: string[];
+    icon?: string;
+  }) => {
     // Si es una carpeta (isInternal), solo actualizar el nombre
     if (node.isInternal) {
       node.submit(data.name);
@@ -27,6 +32,15 @@ export function NodeInput({ node }: NodeInputProps) {
       url: data.url,
       tags: data.tags,
     };
+
+    // Manejar el icono: si se proporciona, usarlo; si es undefined, mantener el actual
+    if (data.icon !== undefined) {
+      if (data.icon === "") {
+        delete updatedData.icon;
+      } else {
+        updatedData.icon = data.icon;
+      }
+    }
 
     // Actualizar los datos del nodo
     Object.assign(node.data, updatedData);
@@ -46,6 +60,7 @@ export function NodeInput({ node }: NodeInputProps) {
       initialName={node.data.name}
       initialUrl={node.data.url}
       initialTags={node.data.tags || []}
+      initialIcon={node.data.icon || ""}
       onSave={handleSave}
       onCancel={handleCancel}
     />

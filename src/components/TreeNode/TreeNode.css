@@ -1,6 +1,7 @@
 *:focus-visible {
-  outline: 1px solid var(--accent-purple);
-  outline-offset: 2px;
+  outline: none;
+  outline-offset: 0px;
+  background-color: rgba(from var(--accent-purple) r g b / 0.1);
 }
 
 /* Tree nodes */
@@ -23,11 +24,7 @@
 }
 
 .tree-node.selected {
-  background: linear-gradient(
-    90deg,
-    rgba(139, 92, 246, 0.15) 0%,
-    rgba(236, 72, 153, 0.08) 100%
-  );
+  background: rgba(from var(--accent-purple) r g b / 0.2);
   box-shadow:
     inset 2px 0 0 0 var(--accent-purple),
     0 0 8px rgba(139, 92, 246, 0.08);
