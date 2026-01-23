@@ -173,10 +173,11 @@ function App() {
 
   return (
     <div className="app-container">
-      <Sidebar term={term} onTermChange={setTerm} stats={stats} />
+      <Sidebar stats={stats} />
       <MainContent
         data={data}
         searchTerm={term}
+        onTermChange={setTerm}
         onDataImport={handleDataImport}
         onCreate={handleCreate}
         onMove={handleMove}

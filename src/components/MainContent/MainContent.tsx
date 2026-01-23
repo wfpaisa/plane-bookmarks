@@ -1,4 +1,4 @@
-import { MdUnfoldLess, MdUnfoldMore } from "react-icons/md";
+import { MdUnfoldLess, MdUnfoldMore, MdSearch } from "react-icons/md";
 import { Tree, TreeApi } from "react-arborist";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { TreeNode } from "../TreeNode";
@@ -10,6 +10,7 @@ import "./MainContent.css";
 interface MainContentProps {
   data: BookmarkItem[];
   searchTerm: string;
+  onTermChange: (term: string) => void;
   onDataImport?: (newData: BookmarkItem[]) => void;
   onCreate?: (args: {
     parentId: string | null;
@@ -28,6 +29,7 @@ interface MainContentProps {
 export function MainContent({
   data,
   searchTerm,
+  onTermChange,
   onDataImport,
   onCreate,
   onMove,
@@ -67,11 +69,17 @@ export function MainContent({
   return (
     <div className="main-content">
       <div className="content-header">
-        <div className="header-left">
-          <h1>Explorador de Bookmarks</h1>
-          <p className="header-subtitle">
-            Organiza y gestiona tus recursos de forma eficiente
-          </p>
+        <div className="header-center">
+          <div className="search-wrapper">
+            <MdSearch className="search-icon" size={16} />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => onTermChange(e.currentTarget.value)}
+              placeholder="Buscar bookmarks..."
+              className="search-input"
+            />
+          </div>
         </div>
         <div className="header-actions">
           <BookmarkImporter onImport={handleImport} />

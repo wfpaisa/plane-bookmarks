@@ -3,24 +3,39 @@ import { type BookmarkItem } from "../data/bookmarks";
 
 export function useBookmarkStats(data: BookmarkItem[]) {
   return useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
     const countItems = (
       items: BookmarkItem[],
-    ): { total: number; folders: number } => {
+    ): { total: number; folders: number; monthlyAdded: number } => {
       let total = 0;
       let folders = 0;
+      let monthlyAdded = 0;
 
       items.forEach((item) => {
-        if (item.children && item.children.length > 0) {
+        total++;
+        if (item.children) {
           folders++;
           const childStats = countItems(item.children);
           total += childStats.total;
           folders += childStats.folders;
-        } else {
-          total++;
+          monthlyAdded += childStats.monthlyAdded;
+        }
+
+        if (item.addDate) {
+          const itemDate = new Date(parseInt(item.addDate) * 1000);
+          if (
+            itemDate.getFullYear() === currentYear &&
+            itemDate.getMonth() === currentMonth
+          ) {
+            monthlyAdded++;
+          }
         }
       });
 
-      return { total, folders };
+      return { total, folders, monthlyAdded };
     };
 
     return countItems(data);
