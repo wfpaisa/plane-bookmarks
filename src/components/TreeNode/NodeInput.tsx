@@ -1,13 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { NodeApi } from "react-arborist";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { BookmarkModal } from "../BookmarkModal";
+import { BookmarkContext } from "../MainContent/MainContent";
+
+interface NodeInputProps {
+  node: NodeApi<BookmarkItem>;
+}
 
 interface NodeInputProps {
   node: NodeApi<BookmarkItem>;
 }
 
 export function NodeInput({ node }: NodeInputProps) {
+  const { onUpdate } = useContext(BookmarkContext);
+
   // Hacer scroll al nodo cuando entra en modo edición
   useEffect(() => {
     node.tree.scrollTo(node.id, "center");
@@ -34,18 +41,17 @@ export function NodeInput({ node }: NodeInputProps) {
     };
 
     // Manejar el icono: si está vacío, eliminarlo; si tiene valor, asignarlo
-
     if (data.icon && data.icon.trim() !== "") {
       updatedData.icon = data.icon;
     } else {
       updatedData.icon = "";
     }
 
-    // Reemplazar completamente node.data con updatedData
-    node.data = updatedData;
+    // Llamar onUpdate para actualizar el estado global
+    onUpdate?.(node.id, updatedData);
 
-    // Enviar solo el nombre al submit (por compatibilidad)
-    node.submit(data.name);
+    // Salir del modo edición
+    node.reset();
   };
 
   const handleCancel = () => {

@@ -3,7 +3,7 @@ import { type BookmarkItem } from "../../data/bookmarks";
 import { TreeNode } from "../TreeNode";
 import { DropCursor } from "../DropCursor";
 import { BookmarkImporter } from "../BookmarkImporter";
-import { useCallback, useState, useRef, useMemo } from "react";
+import { useCallback, useState, useRef, useMemo, createContext, useContext } from "react";
 import "./MainContent.css";
 import { Icon } from "@iconify/react";
 
@@ -27,7 +27,10 @@ interface MainContentProps {
   onRename?: (args: { id: string; name: string }) => void;
   onDelete?: (args: { ids: string[] }) => void;
   onToggle?: (id: string) => void;
+  onUpdate?: (id: string, data: BookmarkItem) => void;
 }
+
+export const BookmarkContext = createContext<{ onUpdate?: (id: string, data: BookmarkItem) => void }>({});
 
 export function MainContent({
   data,
@@ -41,6 +44,7 @@ export function MainContent({
   onRename,
   onDelete,
   onToggle,
+  onUpdate,
 }: MainContentProps) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const treeRef = useRef<TreeApi<BookmarkItem> | null>(null);
@@ -142,34 +146,36 @@ export function MainContent({
       <div className="tree-container">
         <div ref={containerRef} className="tree-wrapper">
           {dimensions.width > 0 && dimensions.height > 0 && (
-            <Tree
-              ref={globalTree}
-              data={data}
-              onCreate={onCreate}
-              onMove={onMove}
-              onRename={onRename}
-              onDelete={onDelete}
-              onToggle={handleToggle}
-              initialOpenState={initialOpenState}
-              width={dimensions.width}
-              height={dimensions.height}
-              rowHeight={40}
-              renderCursor={DropCursor}
-              searchTerm={searchTerm}
-              paddingBottom={40}
-              disableDrop={({ parentNode, dragNodes }) => {
-                if (
-                  parentNode.data.name === "Categories" &&
-                  dragNodes.some((drag) => drag.data.name === "Inbox")
-                ) {
-                  return true;
-                } else {
-                  return false;
-                }
-              }}
-            >
-              {TreeNode}
-            </Tree>
+            <BookmarkContext.Provider value={{ onUpdate }}>
+              <Tree
+                ref={globalTree}
+                data={data}
+                onCreate={onCreate}
+                onMove={onMove}
+                onRename={onRename}
+                onDelete={onDelete}
+                onToggle={handleToggle}
+                initialOpenState={initialOpenState}
+                width={dimensions.width}
+                height={dimensions.height}
+                rowHeight={40}
+                renderCursor={DropCursor}
+                searchTerm={searchTerm}
+                paddingBottom={40}
+                disableDrop={({ parentNode, dragNodes }) => {
+                  if (
+                    parentNode.data.name === "Categories" &&
+                    dragNodes.some((drag) => drag.data.name === "Inbox")
+                  ) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+                }}
+              >
+                {TreeNode}
+              </Tree>
+            </BookmarkContext.Provider>
           )}
         </div>
       </div>

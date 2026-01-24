@@ -156,7 +156,7 @@ function App() {
     const newId = Date.now().toString();
     const newItem: BookmarkItem = {
       id: newId,
-      name: type === "internal" ? "Nueva Carpeta" : "Nuevo Item",
+      name: type === "internal" ? "Nueva Carpeta" : "",
       ...(type === "internal" && { children: [] }),
     };
 
@@ -201,6 +201,24 @@ function App() {
     };
 
     const newData = renameNode(data);
+    setData(newData);
+    syncWithServer(newData);
+  };
+
+  const handleUpdate = (id: string, updatedItem: BookmarkItem) => {
+    const updateNode = (items: BookmarkItem[]): BookmarkItem[] => {
+      return items.map((item) => {
+        if (item.id === id) {
+          return updatedItem;
+        }
+        if (item.children) {
+          return { ...item, children: updateNode(item.children) };
+        }
+        return item;
+      });
+    };
+
+    const newData = updateNode(data);
     setData(newData);
     syncWithServer(newData);
   };
@@ -279,6 +297,7 @@ function App() {
         onRename={handleRename}
         onDelete={handleDelete}
         onToggle={handleToggle}
+        onUpdate={handleUpdate}
       />
       {!serverConnected && (
         <div
