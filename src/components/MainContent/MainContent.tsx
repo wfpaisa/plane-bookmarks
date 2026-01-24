@@ -113,13 +113,11 @@ export function MainContent({
         </div>
         <div className="header-actions">
           <BookmarkImporter onImport={handleImport} />
-          <div className="chip" onClick={handleCollapseAll}>
+          <div className="chip" onClick={handleCollapseAll} title="Colapsar">
             <Icon icon="solar:minimize-linear" height={16} width={16} />
-            <span>Colapsar</span>
           </div>
-          <div className="chip" onClick={handleExpandAll}>
+          <div className="chip" onClick={handleExpandAll} title="Expandir">
             <Icon icon="solar:maximize-linear" height={16} width={16} />
-            <span>Expandir</span>
           </div>
         </div>
       </div>
