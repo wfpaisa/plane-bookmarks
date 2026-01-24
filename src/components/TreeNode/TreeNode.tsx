@@ -24,18 +24,36 @@ export function TreeNode({
       <span className="node-icon">
         {node.isLeaf ? (
           node.data.icon && node.data.icon.trim() !== "" ? (
-            <img
-              src={node.data.icon}
-              alt=""
-              style={{ width: 18, height: 18 }}
-            />
+            <a
+              href={node.data.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="node-link"
+            >
+              <img
+                src={node.data.icon}
+                alt=""
+                style={{ width: 18, height: 18 }}
+              />
+            </a>
           ) : (
             <Icon icon="solar:bookmark-linear" width={18} height={18} />
           )
         ) : null}
       </span>
       <span className="node-name">
-        {node.isEditing ? <NodeInput node={node} /> : node.data.name}
+        {node.isEditing ? (
+          <NodeInput node={node} />
+        ) : (
+          <a
+            href={node.data.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="node-link"
+          >
+            {node.data.name}
+          </a>
+        )}
       </span>
       {node.isLeaf && node.data.tags && node.data.tags.length > 0 && (
         <span className="node-tags">{node.data.tags.join(", ")}</span>
