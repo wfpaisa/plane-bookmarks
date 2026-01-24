@@ -12,6 +12,8 @@ interface MainContentProps {
   searchTerm: string;
   onTermChange: (term: string) => void;
   onDataImport?: (newData: BookmarkItem[]) => void;
+  sidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
   onCreate?: (args: {
     parentId: string | null;
     index: number;
@@ -32,6 +34,8 @@ export function MainContent({
   searchTerm,
   onTermChange,
   onDataImport,
+  sidebarOpen,
+  onToggleSidebar,
   onCreate,
   onMove,
   onRename,
@@ -112,6 +116,19 @@ export function MainContent({
           </div>
         </div>
         <div className="header-actions">
+          {onToggleSidebar && (
+            <div
+              className="chip"
+              onClick={onToggleSidebar}
+              title="Toggle Sidebar"
+            >
+              <Icon
+                icon="solar:sidebar-minimalistic-linear"
+                height={16}
+                width={16}
+              />
+            </div>
+          )}
           <BookmarkImporter onImport={handleImport} />
           <div className="chip" onClick={handleCollapseAll} title="Colapsar">
             <Icon icon="solar:minimize-linear" height={16} width={16} />

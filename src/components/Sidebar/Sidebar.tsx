@@ -6,11 +6,12 @@ interface SidebarProps {
     folders: number;
     monthlyAdded: number;
   };
+  sidebarOpen?: boolean;
 }
 
-export function Sidebar({ stats }: SidebarProps) {
+export function Sidebar({ stats, sidebarOpen }: SidebarProps) {
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
       <div className="stats-section">
         <div className="stats-grid">
           <div className="stat-card">

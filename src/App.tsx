@@ -11,6 +11,7 @@ function App() {
   const [data, setData] = useState<BookmarkItem[]>(bookmarksData);
   const [isLoading, setIsLoading] = useState(true);
   const [serverConnected, setServerConnected] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const stats = useBookmarkStats(data);
 
   // Cargar bookmarks del servidor al iniciar
@@ -259,12 +260,20 @@ function App() {
 
   return (
     <div className="app-container">
-      <Sidebar stats={stats} />
+      <Sidebar stats={stats} sidebarOpen={sidebarOpen} />
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       <MainContent
         data={data}
         searchTerm={term}
         onTermChange={setTerm}
         onDataImport={handleDataImport}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         onCreate={handleCreate}
         onMove={handleMove}
         onRename={handleRename}
