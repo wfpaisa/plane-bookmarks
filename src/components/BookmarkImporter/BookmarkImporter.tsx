@@ -151,14 +151,14 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
           height={18}
           width={18}
         />
-        <span>Importar Google</span>
+        <span>Google</span>
       </div>
       <div
         className="chip"
         onClick={handleExport}
         title="Exportar bookmarks a JSON"
       >
-        <Icon icon="solar:download-outline" height={18} width={18} />
+        <Icon icon="solar:upload-outline" height={18} width={18} />
         <span>DB</span>
       </div>
       <div
@@ -166,7 +166,7 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
         onClick={handleImportJSONClick}
         title="Importar bookmarks desde JSON"
       >
-        <Icon icon="solar:upload-outline" height={18} width={18} />
+        <Icon icon="solar:download-outline" height={18} width={18} />
         <span>DB</span>
       </div>
       <div

@@ -17,6 +17,10 @@
   gap: 2rem;
 }
 
+.chip.toggle-sidebar {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .content-header {
     padding: 20px 24px;
@@ -37,7 +41,7 @@
 
   .header-actions {
     order: -1;
-    justify-content: center;
+    justify-content: left;
   }
 
   .header-left h1 {
@@ -46,6 +50,10 @@
 
   .search-wrapper {
     min-width: auto;
+  }
+
+  .chip.toggle-sidebar {
+    display: inline-block;
   }
 }
 
@@ -117,6 +125,8 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 /* Chips y tags */

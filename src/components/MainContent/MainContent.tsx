@@ -118,7 +118,7 @@ export function MainContent({
         <div className="header-actions">
           {onToggleSidebar && (
             <div
-              className="chip"
+              className="chip toggle-sidebar"
               onClick={onToggleSidebar}
               title="Toggle Sidebar"
             >
@@ -129,13 +129,13 @@ export function MainContent({
               />
             </div>
           )}
-          <BookmarkImporter onImport={handleImport} />
           <div className="chip" onClick={handleCollapseAll} title="Colapsar">
             <Icon icon="solar:minimize-linear" height={16} width={16} />
           </div>
           <div className="chip" onClick={handleExpandAll} title="Expandir">
             <Icon icon="solar:maximize-linear" height={16} width={16} />
           </div>
+          <BookmarkImporter onImport={handleImport} />
         </div>
       </div>
 
