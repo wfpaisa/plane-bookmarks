@@ -1,6 +1,6 @@
 import "./App.css";
 import { bookmarksData, type BookmarkItem } from "./data/bookmarks";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { MainContent } from "./components/MainContent";
 import { useBookmarkStats } from "./hooks/useBookmarkStats";
@@ -13,6 +13,22 @@ function App() {
   const [serverConnected, setServerConnected] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const stats = useBookmarkStats(data);
+
+  const allTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+    const collectTags = (items: BookmarkItem[]) => {
+      items.forEach((item) => {
+        if (item.tags) {
+          item.tags.forEach((tag) => tagsSet.add(tag));
+        }
+        if (item.children) {
+          collectTags(item.children);
+        }
+      });
+    };
+    collectTags(data);
+    return Array.from(tagsSet).sort();
+  }, [data]);
 
   // Cargar bookmarks del servidor al iniciar
   useEffect(() => {
@@ -283,7 +299,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <Sidebar stats={stats} sidebarOpen={sidebarOpen} />
+      <Sidebar stats={stats} tags={allTags} sidebarOpen={sidebarOpen} />
       {sidebarOpen && (
         <div
           className="sidebar-overlay"

@@ -29,6 +29,7 @@ export const bookmarksData: BookmarkItem[] = [
         url: "http://example.com/social",
         addDate: "1414723524",
         icon: "",
+        tags: ["social", "network"],
       },
       {
         id: "14",
@@ -39,11 +40,13 @@ export const bookmarksData: BookmarkItem[] = [
             id: "15",
             name: "Project A",
             url: "https://project-a.com",
+            tags: ["work", "project"],
           },
           {
             id: "16",
             name: "Project B",
             url: "https://project-b.com",
+            tags: ["work", "development"],
           },
         ],
       },

@@ -6,10 +6,11 @@ interface SidebarProps {
     folders: number;
     monthlyAdded: number;
   };
+  tags: string[];
   sidebarOpen?: boolean;
 }
 
-export function Sidebar({ stats, sidebarOpen }: SidebarProps) {
+export function Sidebar({ stats, tags, sidebarOpen }: SidebarProps) {
   return (
     <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
       <div className="stats-section">
@@ -24,6 +25,17 @@ export function Sidebar({ stats, sidebarOpen }: SidebarProps) {
             <div className="stat-label">Carpetas</div>
             <div className="stat-value">{stats.folders}</div>
             <div className="stat-trend">{stats.folders} activas</div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-label">Tags</div>
+            <div className="tags-list">
+              {tags.map((tag) => (
+                <div key={tag} className="tag-item">
+                  {tag}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
