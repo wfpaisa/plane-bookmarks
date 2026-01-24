@@ -224,6 +224,11 @@ function App() {
   };
 
   const handleDelete = ({ ids }: { ids: string[] }) => {
+    const confirmed = window.confirm(
+      `¿Estás seguro de que quieres eliminar ${ids.length} elemento(s)?`,
+    );
+    if (!confirmed) return;
+
     const deleteNodes = (items: BookmarkItem[]): BookmarkItem[] => {
       return items.reduce((acc, item) => {
         if (ids.includes(item.id)) {
