@@ -8,6 +8,7 @@ import { bookmarkAPI } from "./services/bookmarkAPI";
 
 function App() {
   const [term, setTerm] = useState("");
+  const [tagSearchEnabled, setTagSearchEnabled] = useState(false);
   const [data, setData] = useState<BookmarkItem[]>(bookmarksData);
   const [isLoading, setIsLoading] = useState(true);
   const [serverConnected, setServerConnected] = useState(false);
@@ -262,6 +263,15 @@ function App() {
     syncWithServer(newData);
   };
 
+  const handleTagClick = (tag: string) => {
+    if (term.trim() === "") {
+      setTerm(tag);
+    } else {
+      setTerm(term + "," + tag);
+    }
+    setTagSearchEnabled(true);
+  };
+
   const handleToggle = (id: string) => {
     const toggleNode = (items: BookmarkItem[]): BookmarkItem[] => {
       return items.map((item) => {
@@ -299,7 +309,12 @@ function App() {
 
   return (
     <div className="app-container">
-      <Sidebar stats={stats} tags={allTags} sidebarOpen={sidebarOpen} />
+      <Sidebar
+        stats={stats}
+        tags={allTags}
+        sidebarOpen={sidebarOpen}
+        onTagClick={handleTagClick}
+      />
       {sidebarOpen && (
         <div
           className="sidebar-overlay"
@@ -319,6 +334,7 @@ function App() {
         onDelete={handleDelete}
         onToggle={handleToggle}
         onUpdate={handleUpdate}
+        tagSearchEnabled={tagSearchEnabled}
       />
       {!serverConnected && (
         <div

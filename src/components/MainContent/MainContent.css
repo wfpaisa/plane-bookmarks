@@ -95,6 +95,10 @@
   position: relative;
   width: 100%;
   min-width: 300px;
+  display: flex;
+  align-items: center;
+  display: flex;
+  gap: 1rem;
 }
 
 .search-icon {
@@ -106,8 +110,8 @@
 }
 
 .search-input {
-  width: 100%;
-  padding: 8px 12px 8px 36px;
+  flex: 1;
+  padding: 8px 7rem 8px 36px;
   background: var(--bg-primary);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
@@ -119,6 +123,31 @@
 
 .search-input:focus {
   border-color: var(--accent-purple);
+}
+
+.tag-search-label {
+  position: absolute;
+  right: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.clear-search-button {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.tag-search-label input[type="checkbox"] {
+  margin: 0;
 }
 
 .header-actions {

@@ -8,9 +8,15 @@ interface SidebarProps {
   };
   tags: string[];
   sidebarOpen?: boolean;
+  onTagClick: (tag: string) => void;
 }
 
-export function Sidebar({ stats, tags, sidebarOpen }: SidebarProps) {
+export function Sidebar({
+  stats,
+  tags,
+  sidebarOpen,
+  onTagClick,
+}: SidebarProps) {
   return (
     <div className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
       <div className="stats-section">
@@ -31,9 +37,13 @@ export function Sidebar({ stats, tags, sidebarOpen }: SidebarProps) {
             <div className="stat-label">Tags</div>
             <div className="tags-list">
               {tags.map((tag) => (
-                <div key={tag} className="tag-item">
+                <button
+                  key={tag}
+                  className="tag-item"
+                  onClick={() => onTagClick(tag)}
+                >
                   {tag}
-                </div>
+                </button>
               ))}
             </div>
           </div>

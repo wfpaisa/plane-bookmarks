@@ -1,4 +1,4 @@
-import { Tree, TreeApi } from "react-arborist";
+import { Tree, TreeApi, NodeApi } from "react-arborist";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { TreeNode } from "../TreeNode";
 import { DropCursor } from "../DropCursor";
@@ -10,6 +10,7 @@ import {
   useMemo,
   createContext,
   useContext,
+  useEffect,
 } from "react";
 import "./MainContent.css";
 import { Icon } from "@iconify/react";
@@ -21,6 +22,7 @@ interface MainContentProps {
   onDataImport?: (newData: BookmarkItem[]) => void;
   sidebarOpen?: boolean;
   onToggleSidebar?: () => void;
+  tagSearchEnabled?: boolean;
   onCreate?: (args: {
     parentId: string | null;
     index: number;
@@ -48,6 +50,7 @@ export function MainContent({
   onDataImport,
   sidebarOpen,
   onToggleSidebar,
+  tagSearchEnabled,
   onCreate,
   onMove,
   onRename,
@@ -56,7 +59,14 @@ export function MainContent({
   onUpdate,
 }: MainContentProps) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [isTagSearch, setIsTagSearch] = useState(false);
   const treeRef = useRef<TreeApi<BookmarkItem> | null>(null);
+
+  useEffect(() => {
+    if (tagSearchEnabled) {
+      setIsTagSearch(true);
+    }
+  }, [tagSearchEnabled]);
 
   const containerRef = useCallback((el: HTMLDivElement | null) => {
     if (el) {
@@ -83,6 +93,29 @@ export function MainContent({
 
   const handleImport = (newData: BookmarkItem[]) => {
     onDataImport?.(newData);
+  };
+
+  const defaultSearchMatch = (node: NodeApi<BookmarkItem>, term: string) => {
+    const lowerTerm = term.toLowerCase();
+    const hasName = node.data.name.toLowerCase().includes(lowerTerm);
+    const hasTag = node.data.tags
+      ? node.data.tags.some((tag: string) =>
+          tag.toLowerCase().includes(lowerTerm),
+        )
+      : false;
+    return hasName || hasTag;
+  };
+
+  const tagSearchMatch = (node: NodeApi<BookmarkItem>, term: string) => {
+    const searchTags = term
+      .split(",")
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t);
+    return searchTags.every((searchTag) =>
+      node.data.tags
+        ? node.data.tags.some((tag: string) => tag.toLowerCase() === searchTag)
+        : false,
+    );
   };
 
   // Crear initialOpenState desde los datos
@@ -123,8 +156,28 @@ export function MainContent({
               type="text"
               value={searchTerm}
               onChange={(e) => onTermChange(e.currentTarget.value)}
-              placeholder="Buscar bookmarks..."
+              placeholder={
+                isTagSearch
+                  ? "Buscar por tags (ej: ai,db)"
+                  : "Buscar bookmarks..."
+              }
               className="search-input"
+            />
+            <label className="tag-search-label">
+              <input
+                type="checkbox"
+                checked={isTagSearch}
+                onChange={(e) => setIsTagSearch(e.target.checked)}
+              />
+              Tags
+            </label>
+
+            <Icon
+              icon="solar:close-circle-linear"
+              height={18}
+              width={18}
+              onClick={() => onTermChange("")}
+              className="clear-search-button"
             />
           </div>
         </div>
@@ -170,6 +223,7 @@ export function MainContent({
                 rowHeight={40}
                 renderCursor={DropCursor}
                 searchTerm={searchTerm}
+                searchMatch={isTagSearch ? tagSearchMatch : defaultSearchMatch}
                 paddingBottom={40}
                 disableDrop={({ parentNode, dragNodes }) => {
                   if (
