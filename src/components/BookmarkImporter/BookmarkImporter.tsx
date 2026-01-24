@@ -1,7 +1,7 @@
 import { useRef } from "react";
-import { MdUpload } from "react-icons/md";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { parseBookmarkHTML } from "../../utils/bookmarkParser";
+import { Icon } from "@iconify/react";
 
 interface BookmarkImporterProps {
   onImport: (data: BookmarkItem[]) => void;
@@ -52,9 +52,17 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
         onChange={handleFileImport}
         style={{ display: "none" }}
       />
-      <div className="chip" onClick={handleImportClick}>
-        <MdUpload size={14} />
-        <span>Importar HTML</span>
+      <div
+        className="chip"
+        onClick={handleImportClick}
+        title="Importar desde Google Chrome Bookmarks"
+      >
+        <Icon
+          icon="solar:bookmark-square-minimalistic-outline"
+          height={18}
+          width={18}
+        />
+        <span>Importar</span>
       </div>
     </>
   );

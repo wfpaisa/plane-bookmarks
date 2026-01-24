@@ -1,6 +1,7 @@
 import type { BookmarkItem } from "../data/bookmarks";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+// Usar proxy de Vite en desarrollo, o variable de entorno
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 export const bookmarkAPI = {
   // Obtener todos los bookmarks

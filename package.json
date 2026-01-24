@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"bun run server\" \"vite\"",
+    "dev": "concurrently \"bun run server\" \"vite --host\"",
     "dev:client": "vite",
-    "server": "tsx watch server/server.ts",
+    "server": "bun --watch server/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -19,7 +19,6 @@
     "react": "^19.2.0",
     "react-arborist": "^3.4.3",
     "react-dom": "^19.2.0",
-    "react-icons": "^5.5.0",
     "sharp": "^0.34.5"
   },
   "devDependencies": {

@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  plane-bookmark:
+    build: .
+    ports:
+      - "5173:5173" # Puerto para Vite (cliente)
+      - "3001:3001" # Puerto para el servidor backend
+    volumes:
+      - ./server/data:/usr/src/app/server/data # Volumen para persistir datos de bookmarks
+    command: ["bun", "run", "dev"]

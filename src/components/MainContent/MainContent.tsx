@@ -1,4 +1,3 @@
-import { MdUnfoldLess, MdUnfoldMore, MdSearch } from "react-icons/md";
 import { Tree, TreeApi } from "react-arborist";
 import { type BookmarkItem } from "../../data/bookmarks";
 import { TreeNode } from "../TreeNode";
@@ -6,6 +5,7 @@ import { DropCursor } from "../DropCursor";
 import { BookmarkImporter } from "../BookmarkImporter";
 import { useCallback, useState, useRef, useMemo } from "react";
 import "./MainContent.css";
+import { Icon } from "@iconify/react";
 
 interface MainContentProps {
   data: BookmarkItem[];
@@ -96,7 +96,12 @@ export function MainContent({
       <div className="content-header">
         <div className="header-center">
           <div className="search-wrapper">
-            <MdSearch className="search-icon" size={16} />
+            <Icon
+              icon="solar:minimalistic-magnifer-linear"
+              height={18}
+              width={18}
+              className="search-icon"
+            />
             <input
               type="text"
               value={searchTerm}
@@ -109,12 +114,12 @@ export function MainContent({
         <div className="header-actions">
           <BookmarkImporter onImport={handleImport} />
           <div className="chip" onClick={handleCollapseAll}>
-            <MdUnfoldLess size={14} />
-            <span>Colapsar todo</span>
+            <Icon icon="solar:minimize-linear" height={16} width={16} />
+            <span>Colapsar</span>
           </div>
           <div className="chip" onClick={handleExpandAll}>
-            <MdUnfoldMore size={14} />
-            <span>Expandir todo</span>
+            <Icon icon="solar:maximize-linear" height={16} width={16} />
+            <span>Expandir</span>
           </div>
         </div>
       </div>
