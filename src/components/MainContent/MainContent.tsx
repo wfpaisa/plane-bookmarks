@@ -3,7 +3,14 @@ import { type BookmarkItem } from "../../data/bookmarks";
 import { TreeNode } from "../TreeNode";
 import { DropCursor } from "../DropCursor";
 import { BookmarkImporter } from "../BookmarkImporter";
-import { useCallback, useState, useRef, useMemo, createContext, useContext } from "react";
+import {
+  useCallback,
+  useState,
+  useRef,
+  useMemo,
+  createContext,
+  useContext,
+} from "react";
 import "./MainContent.css";
 import { Icon } from "@iconify/react";
 
@@ -30,7 +37,9 @@ interface MainContentProps {
   onUpdate?: (id: string, data: BookmarkItem) => void;
 }
 
-export const BookmarkContext = createContext<{ onUpdate?: (id: string, data: BookmarkItem) => void }>({});
+export const BookmarkContext = createContext<{
+  onUpdate?: (id: string, data: BookmarkItem) => void;
+}>({});
 
 export function MainContent({
   data,
