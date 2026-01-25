@@ -147,7 +147,11 @@ export function MainContent({
         <div className="header-center">
           <div className="search-wrapper">
             <Icon
-              icon="solar:minimalistic-magnifer-linear"
+              icon={
+                isTagSearch
+                  ? "solar:bookmark-linear"
+                  : "solar:minimalistic-magnifer-linear"
+              }
               height={18}
               width={18}
               className="search-icon"
@@ -161,7 +165,7 @@ export function MainContent({
                   ? "Buscar por tags (ej: ai,db)"
                   : "Buscar bookmarks..."
               }
-              className="search-input"
+              className={`search-input ${isTagSearch ? "tag-search" : ""}`}
             />
             <label className="tag-search-label">
               <input
@@ -176,7 +180,10 @@ export function MainContent({
               icon="solar:close-circle-linear"
               height={18}
               width={18}
-              onClick={() => onTermChange("")}
+              onClick={() => {
+                onTermChange("");
+                setIsTagSearch(false);
+              }}
               className="clear-search-button"
             />
           </div>
