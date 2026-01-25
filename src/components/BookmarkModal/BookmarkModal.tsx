@@ -100,7 +100,7 @@ export function BookmarkModal({
   const getFaviconAsBase64 = async (url: string): Promise<string | null> => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/favicon?url=${encodeURIComponent(url)}`,
+        `/api/favicon?url=${encodeURIComponent(url)}`,
       );
 
       if (!response.ok) {
