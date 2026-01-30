@@ -19,8 +19,8 @@ const getSocketUrl = () => {
   }
 
   // En producción, usa el mismo origen (protocolo y dominio actuales)
-  // Esto hace que se conecte a https://local-book.wfelipe.com
-  const socketUrl = `${protocol}//${hostname}`;
+  // Esto hace que se conecte a https://local-book.wfelipe.com:3001
+  const socketUrl = `${protocol}//${hostname}:3001`;
   console.log(`🔌 Conectando WebSocket a: ${socketUrl}`);
   return socketUrl;
 };
