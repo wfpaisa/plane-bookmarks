@@ -7,14 +7,20 @@ const getSocketUrl = () => {
     return "http://localhost:3001";
   }
 
+  // Si hay una URL de socket configurada en las variables de entorno, usarla
+  if (import.meta.env.VITE_SOCKET_URL) {
+    return import.meta.env.VITE_SOCKET_URL;
+  }
+
   const { protocol, hostname } = window.location;
 
   // En desarrollo local
   if (hostname === "localhost" || hostname === "127.0.0.1") {
-    // Solo usa la variable de entorno en desarrollo
-    if (import.meta.env.VITE_SOCKET_URL && import.meta.env.DEV) {
-      return import.meta.env.VITE_SOCKET_URL;
-    }
+    return "http://localhost:3001";
+  }
+
+  // Para dominios de desarrollo locales (como local-book.wfelipe.com), usar localhost
+  if (hostname.includes("local-") || hostname.endsWith(".local") || hostname.includes("wfelipe.com")) {
     return "http://localhost:3001";
   }
 
