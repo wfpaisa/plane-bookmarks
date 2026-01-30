@@ -8,7 +8,7 @@ const getSocketUrl = () => {
   }
 
   const { protocol, hostname } = window.location;
-  
+
   // En desarrollo local
   if (hostname === "localhost" || hostname === "127.0.0.1") {
     // Solo usa la variable de entorno en desarrollo
