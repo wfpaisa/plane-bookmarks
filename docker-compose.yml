@@ -8,4 +8,8 @@ services:
       - "3001:3001" # Puerto para el servidor backend
     volumes:
       - ./server/data:/usr/src/app/server/data # Volumen para persistir datos de bookmarks
+    environment:
+      - VITE_API_URL=/api
+      - VITE_SOCKET_URL=http://localhost:3001
+      - NODE_ENV=development
     command: ["bun", "run", "dev"]
