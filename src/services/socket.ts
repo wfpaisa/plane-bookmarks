@@ -1,6 +1,29 @@
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
+// En producción, usa el mismo origen que la página actual
+// En desarrollo, usa localhost:3001
+const getSocketUrl = () => {
+  if (import.meta.env.VITE_SOCKET_URL) {
+    return import.meta.env.VITE_SOCKET_URL;
+  }
+
+  // Si estamos en el navegador y no es localhost, usa el mismo origen
+  if (typeof window !== "undefined") {
+    const { protocol, hostname } = window.location;
+
+    // En desarrollo local
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:3001";
+    }
+
+    // En producción, usa el mismo origen (sin especificar puerto)
+    return `${protocol}//${hostname}`;
+  }
+
+  return "http://localhost:3001";
+};
+
+const SOCKET_URL = getSocketUrl();
 
 let socket: Socket | null = null;
 
