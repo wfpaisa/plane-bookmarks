@@ -18,9 +18,9 @@ const getSocketUrl = () => {
     return "http://localhost:3001";
   }
 
-  // En producción, usa el mismo origen (protocolo y dominio actuales)
-  // Esto hace que se conecte a https://local-book.wfelipe.com:3001
-  const socketUrl = `${protocol}//${hostname}:3001`;
+  // En producción, usa el mismo origen (sin especificar puerto)
+  // Nginx Proxy Manager manejará el proxy al puerto 3001
+  const socketUrl = `${protocol}//${hostname}`;
   console.log(`🔌 Conectando WebSocket a: ${socketUrl}`);
   return socketUrl;
 };
