@@ -3,24 +3,26 @@ import { io, Socket } from "socket.io-client";
 // En producción, usa el mismo origen que la página actual
 // En desarrollo, usa localhost:3001
 const getSocketUrl = () => {
-  if (import.meta.env.VITE_SOCKET_URL) {
-    return import.meta.env.VITE_SOCKET_URL;
+  if (typeof window === "undefined") {
+    return "http://localhost:3001";
   }
 
-  // Si estamos en el navegador y no es localhost, usa el mismo origen
-  if (typeof window !== "undefined") {
-    const { protocol, hostname } = window.location;
-
-    // En desarrollo local
-    if (hostname === "localhost" || hostname === "127.0.0.1") {
-      return "http://localhost:3001";
+  const { protocol, hostname } = window.location;
+  
+  // En desarrollo local
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    // Solo usa la variable de entorno en desarrollo
+    if (import.meta.env.VITE_SOCKET_URL && import.meta.env.DEV) {
+      return import.meta.env.VITE_SOCKET_URL;
     }
-
-    // En producción, usa el mismo origen (sin especificar puerto)
-    return `${protocol}//${hostname}`;
+    return "http://localhost:3001";
   }
 
-  return "http://localhost:3001";
+  // En producción, usa el mismo origen (protocolo y dominio actuales)
+  // Esto hace que se conecte a https://local-book.wfelipe.com
+  const socketUrl = `${protocol}//${hostname}`;
+  console.log(`🔌 Conectando WebSocket a: ${socketUrl}`);
+  return socketUrl;
 };
 
 const SOCKET_URL = getSocketUrl();
