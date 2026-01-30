@@ -1,10 +1,11 @@
 import "./App.css";
 import { bookmarksData, type BookmarkItem } from "./data/bookmarks";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { MainContent } from "./components/MainContent";
 import { useBookmarkStats } from "./hooks/useBookmarkStats";
 import { bookmarkAPI } from "./services/bookmarkAPI";
+import { socketService } from "./services/socket";
 
 function App() {
   const [term, setTerm] = useState("");
@@ -39,10 +40,10 @@ function App() {
         setServerConnected(isConnected);
 
         if (isConnected) {
-          const serverData = await bookmarkAPI.getAll();
+          const response = await bookmarkAPI.getAll();
           // Si el servidor tiene datos, usarlos; sino usar datos por defecto
-          if (serverData && serverData.length > 0) {
-            setData(serverData);
+          if (response.data && response.data.length > 0) {
+            setData(response.data);
           } else {
             // Si el servidor está vacío, guardar datos iniciales
             await bookmarkAPI.saveAll(bookmarksData);
@@ -60,11 +61,36 @@ function App() {
     loadBookmarks();
   }, []);
 
+  // Conectar WebSocket y escuchar actualizaciones en tiempo real
+  useEffect(() => {
+    if (!serverConnected) return;
+
+    const socket = socketService.connect();
+
+    const handleBookmarksUpdate = (payload: { data: BookmarkItem[] }) => {
+      console.log("🔄 Cambios recibidos de otro cliente");
+      setData(payload.data);
+    };
+
+    socketService.onBookmarksUpdated(handleBookmarksUpdate);
+
+    return () => {
+      socketService.offBookmarksUpdated(handleBookmarksUpdate);
+    };
+  }, [serverConnected]);
+
   // Sincronizar con el servidor cuando los datos cambian
   const syncWithServer = async (newData: BookmarkItem[]) => {
     if (serverConnected) {
       try {
-        await bookmarkAPI.updateAll(newData);
+        const socket = socketService.getSocket();
+        if (socket && socket.connected) {
+          // Usar WebSocket si está conectado
+          await socketService.updateBookmarks(newData);
+        } else {
+          // Fallback a HTTP si WebSocket no está disponible
+          await bookmarkAPI.updateAll(newData);
+        }
       } catch (error) {
         console.error("Error al sincronizar con el servidor:", error);
       }

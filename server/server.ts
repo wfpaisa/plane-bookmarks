@@ -4,11 +4,21 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
+
 const PORT = 3001;
 const DATA_FILE = path.join(__dirname, "data", "bookmarks.json");
 
@@ -42,13 +52,15 @@ async function readBookmarks() {
 // Escribir bookmarks al archivo
 async function writeBookmarks(bookmarks: any) {
   await fs.writeFile(DATA_FILE, JSON.stringify(bookmarks, null, 2), "utf-8");
+  // Emitir evento de actualización a todos los clientes conectados
+  io.emit("bookmarks:updated", { data: bookmarks });
 }
 
 // GET - Obtener todos los bookmarks
 app.get("/api/bookmarks", async (req, res) => {
   try {
     const bookmarks = await readBookmarks();
-    res.json(bookmarks);
+    res.json({ data: bookmarks });
   } catch (error) {
     console.error("Error reading bookmarks:", error);
     res.status(500).json({ error: "Error al leer los bookmarks" });
@@ -151,11 +163,41 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Configurar WebSocket
+io.on("connection", (socket) => {
+  console.log(`✅ Cliente conectado: ${socket.id}`);
+
+  // Manejar actualizaciones de bookmarks vía WebSocket
+  socket.on("bookmarks:update", async (bookmarks) => {
+    try {
+      await fs.writeFile(
+        DATA_FILE,
+        JSON.stringify(bookmarks, null, 2),
+        "utf-8",
+      );
+
+      // Emitir solo a los demás clientes (no al que envió el cambio)
+      socket.broadcast.emit("bookmarks:updated", { data: bookmarks });
+
+      // Confirmar al cliente que envió
+      socket.emit("bookmarks:saved", { success: true });
+    } catch (error) {
+      console.error("Error al guardar bookmarks vía WebSocket:", error);
+      socket.emit("bookmarks:error", { error: "Error al guardar" });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`❌ Cliente desconectado: ${socket.id}`);
+  });
+});
+
 // Iniciar servidor
 async function startServer() {
   await ensureDataDirectory();
-  app.listen(PORT, "0.0.0.0", () => {
+  httpServer.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor ejecutándose en http://0.0.0.0:${PORT}`);
+    console.log(`🔌 WebSocket habilitado`);
     console.log(`📁 Archivo de datos: ${DATA_FILE}`);
   });
 }

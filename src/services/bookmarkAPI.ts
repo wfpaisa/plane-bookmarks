@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 export const bookmarkAPI = {
   // Obtener todos los bookmarks
-  async getAll(): Promise<BookmarkItem[]> {
+  async getAll(): Promise<{ data: BookmarkItem[] }> {
     try {
       const response = await fetch(`${API_URL}/bookmarks`);
       if (!response.ok) {
