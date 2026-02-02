@@ -10,19 +10,21 @@ const getSocketUrl = () => {
   // En el navegador, usar el mismo origen que la página actual
   if (typeof window !== "undefined") {
     const { protocol, hostname, port } = window.location;
-    
+
     // En desarrollo local (localhost o 127.0.0.1)
     if (hostname === "localhost" || hostname === "127.0.0.1") {
       // Usar el puerto del servidor backend (3001)
       return "http://localhost:3001";
     }
-    
-    // En cualquier otro dominio (incluyendo dominios custom como local-book.wfelipe.com)
+
+    // En cualquier otro dominio (incluyendo dominios custom como local-book.XXX.com)
     // usar el mismo origen sin especificar puerto
     // Esto asume que tienes un reverse proxy (como Nginx) que maneja el routing
     const socketProtocol = protocol === "https:" ? "https:" : "http:";
-    const socketUrl = port ? `${socketProtocol}//${hostname}:${port}` : `${socketProtocol}//${hostname}`;
-    
+    const socketUrl = port
+      ? `${socketProtocol}//${hostname}:${port}`
+      : `${socketProtocol}//${hostname}`;
+
     console.log(`🔌 Conectando WebSocket a: ${socketUrl}`);
     return socketUrl;
   }
@@ -39,7 +41,7 @@ export const socketService = {
   connect(): Socket {
     if (!socket) {
       console.log(`🔌 Iniciando conexión WebSocket a: ${SOCKET_URL}`);
-      
+
       socket = io(SOCKET_URL, {
         path: "/socket.io",
         transports: ["websocket", "polling"],

@@ -76,6 +76,8 @@ cat package.json | grep '"version"'
 
 ## Uso con Docker Compose
 
+### Desarrollo Local
+
 1. Asegúrate de tener Docker y Docker Compose instalados en tu sistema.
 2. Construye y levanta los contenedores:
    ```bash
@@ -86,6 +88,31 @@ cat package.json | grep '"version"'
    ```bash
    docker-compose down
    ```
+
+### Producción con Portainer
+
+Si estás usando **Portainer** para desplegar desde un repositorio Git:
+
+1. **En Portainer** → Stacks → Add Stack
+2. **Build method:** Repository
+3. **Repository URL:** URL de tu repositorio
+4. **Compose path:** `docker-compose.prod.yml`
+5. **Environment variables:**
+   ```
+   VITE_API_URL=/api
+   NODE_ENV=production
+   ```
+   
+   ⚠️ **IMPORTANTE:** NO agregues `VITE_SOCKET_URL`. El sistema detecta automáticamente el dominio.
+
+6. Deploy the stack
+
+📖 **Guía completa:** [`docs/portainer-setup.md`](docs/portainer-setup.md)
+
+**Script de verificación:**
+```bash
+./scripts/check-docker-config.sh
+```
 
 ## Estructura del proyecto
 
@@ -110,6 +137,29 @@ plane-bookmark-react/
 - `bun run preview`: Previsualiza la versión de producción.
 - `npm run version`: Muestra la versión actual del proyecto.
 
+### 🔍 Script de diagnóstico
+
+Para verificar que todo está configurado correctamente:
+
+```bash
+# Diagnóstico básico
+./scripts/diagnose.sh
+
+# Diagnóstico con test de dominio
+./scripts/diagnose.sh local-book.XXX.com
+```
+
+Este script verifica:
+
+- ✅ Node.js instalado
+- ✅ Estructura del proyecto
+- ✅ Dependencias instaladas
+- ✅ Puertos 3001 y 5173
+- ✅ Backend respondiendo
+- ✅ Archivo de datos
+- ✅ Configuración .env
+- ✅ Build funcionando
+
 ## 🤝 Contribuir
 
 1. Haz un fork del proyecto.
@@ -120,33 +170,57 @@ plane-bookmark-react/
 
 ## 🔧 Configuración con Reverse Proxy
 
-Si estás usando un dominio personalizado (como `local-book.wfelipe.com`), necesitas configurar un reverse proxy para que el WebSocket funcione correctamente.
+Si estás usando un dominio personalizado (como `local-book.XXX.com`), necesitas configurar un reverse proxy para que el WebSocket funcione correctamente.
 
-### Configuración rápida con Nginx Proxy Manager:
+### 📚 Guías disponibles:
 
-1. **Proxy Host Principal:**
-   - Domain: `local-book.wfelipe.com`
-   - Forward to: `localhost:5173`
+1. **[Guía Rápida (3 minutos)](docs/nginx-quick-setup.md)** ⚡
+   - Configuración paso a paso simplificada
+   - Para usuarios con prisa
 
-2. **Custom Location `/api`:**
-   - Forward to: `localhost:3001`
+2. **[Guía Completa con Troubleshooting](docs/nginx-proxy-manager-setup.md)** 📖
+   - Explicación detallada de cada paso
+   - Soluciones a problemas comunes
+   - Configuración avanzada
 
-3. **Custom Location `/socket.io/`:**
-   - Forward to: `localhost:3001`
-   - ✅ **Activar "Websockets Support"**
+3. **[Configuración Manual de Nginx/Caddy](docs/nginx-config.md)** 🔧
+   - Para usuarios avanzados
+   - Configuración sin GUI
 
-Ver guía completa en: [`docs/nginx-config.md`](docs/nginx-config.md)
+### ⚡ Configuración rápida con Nginx Proxy Manager:
+
+```
+1. Proxy Host → local-book.XXX.com → localhost:5173
+2. Custom Location → /api → localhost:3001
+3. Custom Location → /socket.io/ → localhost:3001 (con WebSocket config)
+4. SSL → Let's Encrypt (opcional)
+5. Save
+```
+
+**⚠️ IMPORTANTE:** La location `/socket.io/` debe incluir configuración especial de WebSocket. Ver guías para detalles.
 
 ### Variables de entorno
 
 El proyecto detecta automáticamente el entorno:
+
 - **localhost**: Se conecta a `http://localhost:3001`
 - **Cualquier otro dominio**: Usa el mismo dominio que la página
 
 Si necesitas configuración personalizada, crea un archivo `.env`:
+
 ```bash
 cp .env.example .env
 # Editar según necesites
+```
+
+### 🔍 Verificar que funciona
+
+Abre la consola del navegador (F12) y deberías ver:
+
+```
+🔌 Iniciando conexión WebSocket a: https://local-book.XXX.com
+✅ WebSocket conectado exitosamente
+   Transport: websocket
 ```
 
 ## Licencia

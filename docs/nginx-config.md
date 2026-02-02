@@ -5,8 +5,9 @@
 ### Host Configuration
 
 **Domain Names:**
+
 ```
-local-book.wfelipe.com
+local-book.XXX.com
 # o el dominio que estés usando
 ```
 
@@ -31,6 +32,7 @@ local-book.wfelipe.com
    - ✅ **Websockets Support** (IMPORTANTE!)
 
 **SSL:**
+
 - ✅ Force SSL (si usas HTTPS)
 - ✅ HTTP/2 Support
 - Certificado: Let's Encrypt o tu certificado
@@ -56,67 +58,67 @@ upstream frontend {
 
 server {
     listen 80;
-    server_name local-book.wfelipe.com;
-    
+    server_name local-book.XXX.com;
+
     # Redirigir a HTTPS (opcional)
     # return 301 https://$server_name$request_uri;
-    
+
     # ============================================
     # API Backend (HTTP)
     # ============================================
     location /api/ {
         proxy_pass http://backend;
-        
+
         # Headers esenciales
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # Timeouts
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
-    
+
     # ============================================
     # WebSocket (Socket.IO)
     # ============================================
     location /socket.io/ {
         proxy_pass http://backend;
-        
+
         # Headers esenciales
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # Headers específicos para WebSocket
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-        
+
         # Timeouts más largos para WebSocket
         proxy_connect_timeout 7d;
         proxy_send_timeout 7d;
         proxy_read_timeout 7d;
-        
+
         # Buffer settings
         proxy_buffering off;
     }
-    
+
     # ============================================
     # Frontend (React)
     # ============================================
     location / {
         proxy_pass http://frontend;
-        
+
         # Headers esenciales
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # Para Vite HMR (Hot Module Replacement)
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -127,23 +129,24 @@ server {
 # Configuración HTTPS (opcional)
 server {
     listen 443 ssl http2;
-    server_name local-book.wfelipe.com;
-    
+    server_name local-book.XXX.com;
+
     # Certificados SSL
-    ssl_certificate /etc/letsencrypt/live/local-book.wfelipe.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/local-book.wfelipe.com/privkey.pem;
-    
+    ssl_certificate /etc/letsencrypt/live/local-book.XXX.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/local-book.XXX.com/privkey.pem;
+
     # SSL Security
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
-    
+
     # Usar las mismas locations de arriba
     # (copiar las secciones /api/, /socket.io/, y / del bloque anterior)
 }
 ```
 
 ### Activar el sitio:
+
 ```bash
 sudo ln -s /etc/nginx/sites-available/plane-bookmark /etc/nginx/sites-enabled/
 sudo nginx -t
@@ -157,19 +160,20 @@ sudo systemctl reload nginx
 ### Archivo: `Caddyfile`
 
 ```caddy
-local-book.wfelipe.com {
+local-book.XXX.com {
     # Frontend
     reverse_proxy localhost:5173
-    
+
     # API Backend
     reverse_proxy /api/* localhost:3001
-    
+
     # WebSocket
     reverse_proxy /socket.io/* localhost:3001
 }
 ```
 
 ### Iniciar Caddy:
+
 ```bash
 caddy run --config Caddyfile
 ```
@@ -179,21 +183,25 @@ caddy run --config Caddyfile
 ## Verificación
 
 ### 1. Verificar que el backend está corriendo:
+
 ```bash
 curl http://localhost:3001/api/health
 # Debería responder: {"status":"ok","timestamp":"..."}
 ```
 
 ### 2. Verificar que el proxy funciona:
+
 ```bash
-curl https://local-book.wfelipe.com/api/health
+curl https://local-book.XXX.com/api/health
 # Debería responder: {"status":"ok","timestamp":"..."}
 ```
 
 ### 3. Verificar WebSocket en el navegador:
+
 Abre la consola del navegador y deberías ver:
+
 ```
-🔌 Iniciando conexión WebSocket a: https://local-book.wfelipe.com
+🔌 Iniciando conexión WebSocket a: https://local-book.XXX.com
 ✅ WebSocket conectado exitosamente
    Transport: websocket
 ```
@@ -207,6 +215,7 @@ Abre la consola del navegador y deberías ver:
 **Causa:** Nginx no tiene configurado el upgrade de WebSocket
 
 **Solución:** Asegúrate de tener estas líneas en la location `/socket.io/`:
+
 ```nginx
 proxy_http_version 1.1;
 proxy_set_header Upgrade $http_upgrade;
@@ -218,6 +227,7 @@ proxy_set_header Connection "upgrade";
 **Causa:** El servidor backend no está permitiendo el origen
 
 **Solución:** El servidor ya tiene CORS abierto (`origin: "*"`), pero si usas HTTPS en el proxy y HTTP en el backend, asegúrate de configurar el header:
+
 ```nginx
 proxy_set_header X-Forwarded-Proto $scheme;
 ```
@@ -226,7 +236,8 @@ proxy_set_header X-Forwarded-Proto $scheme;
 
 **Causa:** El backend no está corriendo o no es accesible
 
-**Solución:** 
+**Solución:**
+
 ```bash
 # Verificar que el backend está corriendo
 ps aux | grep node
