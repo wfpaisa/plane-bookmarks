@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { type BookmarkItem } from "../data/bookmarks";
+import type { BookmarkItem } from "../types/bookmark";
 
 export function useBookmarkStats(data: BookmarkItem[]) {
   return useMemo(() => {

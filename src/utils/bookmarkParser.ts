@@ -1,4 +1,4 @@
-import { type BookmarkItem } from "../data/bookmarks";
+import type { BookmarkItem } from "../types/bookmark";
 
 export function parseBookmarkHTML(htmlContent: string): BookmarkItem[] {
   const parser = new DOMParser();

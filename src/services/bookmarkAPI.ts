@@ -1,4 +1,4 @@
-import type { BookmarkItem } from "../data/bookmarks";
+import type { BookmarkItem } from "../types/bookmark";
 
 // Usar proxy de Vite en desarrollo, o variable de entorno
 const API_URL = import.meta.env.VITE_API_URL || "/api";

@@ -1,5 +1,5 @@
 import { Tree, TreeApi, NodeApi } from "react-arborist";
-import { type BookmarkItem } from "../../data/bookmarks";
+import type { BookmarkItem } from "../../types/bookmark";
 import { TreeNode } from "../TreeNode";
 import { DropCursor } from "../DropCursor";
 import { BookmarkImporter } from "../BookmarkImporter";
@@ -9,7 +9,6 @@ import {
   useRef,
   useMemo,
   createContext,
-  useContext,
   useEffect,
 } from "react";
 import "./MainContent.css";
@@ -48,7 +47,6 @@ export function MainContent({
   searchTerm,
   onTermChange,
   onDataImport,
-  sidebarOpen,
   onToggleSidebar,
   tagSearchEnabled,
   onCreate,

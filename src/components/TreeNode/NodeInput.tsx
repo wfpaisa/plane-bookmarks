@@ -1,12 +1,8 @@
 import { useEffect, useContext } from "react";
 import { NodeApi } from "react-arborist";
-import { type BookmarkItem } from "../../data/bookmarks";
+import type { BookmarkItem } from "../../types/bookmark";
 import { BookmarkModal } from "../BookmarkModal";
 import { BookmarkContext } from "../MainContent/MainContent";
-
-interface NodeInputProps {
-  node: NodeApi<BookmarkItem>;
-}
 
 interface NodeInputProps {
   node: NodeApi<BookmarkItem>;

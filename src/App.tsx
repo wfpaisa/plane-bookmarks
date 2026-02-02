@@ -1,6 +1,7 @@
 import "./App.css";
-import { bookmarksData, type BookmarkItem } from "./data/bookmarks";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { bookmarksData } from "./data/bookmarks";
+import type { BookmarkItem } from "./types/bookmark";
+import { useState, useEffect, useMemo } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { MainContent } from "./components/MainContent";
 import { useBookmarkStats } from "./hooks/useBookmarkStats";
@@ -65,7 +66,7 @@ function App() {
   useEffect(() => {
     if (!serverConnected) return;
 
-    const socket = socketService.connect();
+    socketService.connect();
 
     const handleBookmarksUpdate = (payload: { data: BookmarkItem[] }) => {
       console.log("🔄 Cambios recibidos de otro cliente");
@@ -123,7 +124,7 @@ function App() {
           return acc;
         }
         if (item.children) {
-          item.children = removeNodes(item.children, ids);
+          return [...acc, { ...item, children: removeNodes(item.children, ids) }];
         }
         return [...acc, item];
       }, [] as BookmarkItem[]);
@@ -278,7 +279,7 @@ function App() {
           return acc;
         }
         if (item.children) {
-          item.children = deleteNodes(item.children);
+          return [...acc, { ...item, children: deleteNodes(item.children) }];
         }
         return [...acc, item];
       }, [] as BookmarkItem[]);

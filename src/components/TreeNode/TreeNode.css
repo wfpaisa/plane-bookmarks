@@ -89,16 +89,6 @@
   flex-shrink: 1;
 }
 
-.node-badge {
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-  color: white;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 700;
-  box-shadow: var(--shadow-sm);
-}
-
 /* Input de edición */
 .node-input {
   padding: 4px 8px;

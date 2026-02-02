@@ -1,7 +1,7 @@
 import { type NodeRendererProps, NodeApi } from "react-arborist";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
-import { type BookmarkItem } from "../../data/bookmarks";
+import type { BookmarkItem } from "../../types/bookmark";
 import { NodeInput } from "./NodeInput";
 import "./TreeNode.css";
 
