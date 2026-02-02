@@ -1,7 +1,7 @@
 {
   "name": "plane-bookmark",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"bun run server\" \"vite --host\"",
@@ -9,7 +9,8 @@
     "server": "bun --watch server/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "version": "echo $npm_package_version"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",

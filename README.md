@@ -4,6 +4,42 @@
 
 Plane Bookmark es una aplicación para gestionar marcadores de manera eficiente. Proporciona una interfaz intuitiva para organizar, importar y visualizar marcadores.
 
+## ✨ Nuevas características
+
+- 🚀 **Versionado automático** - Incrementa versión en cada push
+- 📊 **Console logs informativos** - Muestra versión, build y entorno
+- 🔄 **Sincronización mejorada** - WebSocket para tiempo real
+- 🏷️ **Sistema de tags** - Organización avanzada
+
+## 📦 Versionado automático
+
+Este proyecto incluye un sistema de versionado automático que incrementa la versión en cada push a GitHub.
+
+### Console logs al iniciar
+
+```bash
+🚀 Plane Bookmark v1.0.0
+📦 Build: 2024-01-15T10:30:00.000Z
+🌐 Environment: development
+🔗 Development mode
+```
+
+### Cómo funciona el versionado
+
+1. **Auto-incremento**: Cada push a `main`/`master` incrementa la versión patch automáticamente
+2. **Tags**: Se crean tags `v1.0.0`, `v1.0.1`, etc.
+3. **Commits**: Se genera commit automático "🔖 Bump version to X.X.X"
+
+### Comandos útiles
+
+```bash
+# Ver versión actual
+npm run version
+
+# Ver detalles del package
+cat package.json | grep '"version"'
+```
+
 ## Características
 
 - Importación de marcadores desde archivos JSON.
@@ -72,6 +108,7 @@ plane-bookmark-react/
 - `bun run dev`: Inicia el servidor de desarrollo.
 - `bun run build`: Genera una versión de producción.
 - `bun run preview`: Previsualiza la versión de producción.
+- `npm run version`: Muestra la versión actual del proyecto.
 
 ## Contribuir
 
