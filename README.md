@@ -110,13 +110,44 @@ plane-bookmark-react/
 - `bun run preview`: Previsualiza la versión de producción.
 - `npm run version`: Muestra la versión actual del proyecto.
 
-## Contribuir
+## 🤝 Contribuir
 
 1. Haz un fork del proyecto.
 2. Crea una rama para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`).
 3. Realiza tus cambios y haz commit (`git commit -m 'Añade nueva funcionalidad'`).
 4. Sube tus cambios (`git push origin feature/nueva-funcionalidad`).
 5. Abre un Pull Request.
+
+## 🔧 Configuración con Reverse Proxy
+
+Si estás usando un dominio personalizado (como `local-book.wfelipe.com`), necesitas configurar un reverse proxy para que el WebSocket funcione correctamente.
+
+### Configuración rápida con Nginx Proxy Manager:
+
+1. **Proxy Host Principal:**
+   - Domain: `local-book.wfelipe.com`
+   - Forward to: `localhost:5173`
+
+2. **Custom Location `/api`:**
+   - Forward to: `localhost:3001`
+
+3. **Custom Location `/socket.io/`:**
+   - Forward to: `localhost:3001`
+   - ✅ **Activar "Websockets Support"**
+
+Ver guía completa en: [`docs/nginx-config.md`](docs/nginx-config.md)
+
+### Variables de entorno
+
+El proyecto detecta automáticamente el entorno:
+- **localhost**: Se conecta a `http://localhost:3001`
+- **Cualquier otro dominio**: Usa el mismo dominio que la página
+
+Si necesitas configuración personalizada, crea un archivo `.env`:
+```bash
+cp .env.example .env
+# Editar según necesites
+```
 
 ## Licencia
 

@@ -1,34 +1,34 @@
 import { io, Socket } from "socket.io-client";
 
-// En producción, usa el mismo origen que la página actual
-// En desarrollo, usa localhost:3001
+// Obtener la URL base del servidor según el entorno
 const getSocketUrl = () => {
-  if (typeof window === "undefined") {
-    return "http://localhost:3001";
-  }
-
-  // Si hay una URL de socket configurada en las variables de entorno, usarla
+  // Si está configurado en variables de entorno, usar ese valor
   if (import.meta.env.VITE_SOCKET_URL) {
     return import.meta.env.VITE_SOCKET_URL;
   }
 
-  const { protocol, hostname } = window.location;
-
-  // En desarrollo local
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
-    return "http://localhost:3001";
+  // En el navegador, usar el mismo origen que la página actual
+  if (typeof window !== "undefined") {
+    const { protocol, hostname, port } = window.location;
+    
+    // En desarrollo local (localhost o 127.0.0.1)
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      // Usar el puerto del servidor backend (3001)
+      return "http://localhost:3001";
+    }
+    
+    // En cualquier otro dominio (incluyendo dominios custom como local-book.wfelipe.com)
+    // usar el mismo origen sin especificar puerto
+    // Esto asume que tienes un reverse proxy (como Nginx) que maneja el routing
+    const socketProtocol = protocol === "https:" ? "https:" : "http:";
+    const socketUrl = port ? `${socketProtocol}//${hostname}:${port}` : `${socketProtocol}//${hostname}`;
+    
+    console.log(`🔌 Conectando WebSocket a: ${socketUrl}`);
+    return socketUrl;
   }
 
-  // Para dominios de desarrollo locales (como local-book.wfelipe.com), usar localhost
-  if (hostname.includes("local-") || hostname.endsWith(".local") || hostname.includes("wfelipe.com")) {
-    return "http://localhost:3001";
-  }
-
-  // En producción, usa el mismo origen (sin especificar puerto)
-  // Nginx Proxy Manager manejará el proxy al puerto 3001
-  const socketUrl = `${protocol}//${hostname}`;
-  console.log(`🔌 Conectando WebSocket a: ${socketUrl}`);
-  return socketUrl;
+  // Fallback para SSR (no debería usarse en este caso)
+  return "http://localhost:3001";
 };
 
 const SOCKET_URL = getSocketUrl();
@@ -38,24 +38,38 @@ let socket: Socket | null = null;
 export const socketService = {
   connect(): Socket {
     if (!socket) {
+      console.log(`🔌 Iniciando conexión WebSocket a: ${SOCKET_URL}`);
+      
       socket = io(SOCKET_URL, {
+        path: "/socket.io",
         transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
         reconnectionAttempts: Infinity,
+        timeout: 10000,
       });
 
       socket.on("connect", () => {
-        console.log("🔌 WebSocket conectado");
+        console.log("✅ WebSocket conectado exitosamente");
+        console.log(`   Transport: ${socket?.io.engine.transport.name}`);
       });
 
-      socket.on("disconnect", () => {
-        console.log("🔌 WebSocket desconectado");
+      socket.on("disconnect", (reason) => {
+        console.log(`🔌 WebSocket desconectado. Razón: ${reason}`);
       });
 
       socket.on("connect_error", (error) => {
-        console.error("❌ Error de conexión WebSocket:", error);
+        console.error("❌ Error de conexión WebSocket:", error.message);
+        console.log("💡 Verificar que el servidor esté corriendo y accesible");
+      });
+
+      socket.on("reconnect_attempt", (attemptNumber) => {
+        console.log(`🔄 Intento de reconexión #${attemptNumber}`);
+      });
+
+      socket.on("reconnect", (attemptNumber) => {
+        console.log(`✅ Reconectado después de ${attemptNumber} intentos`);
       });
     }
     return socket;
