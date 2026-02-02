@@ -41,17 +41,6 @@ Location: /socket.io/   ← ¡Con "/" al final!
 Scheme: http
 Forward IP: localhost
 Forward Port: 3001
-
-Advanced → Custom config:
-┌─────────────────────────────────────────┐
-│ proxy_set_header Upgrade $http_upgrade; │
-│ proxy_set_header Connection "upgrade";  │
-│ proxy_http_version 1.1;                 │
-│ proxy_connect_timeout 7d;               │
-│ proxy_send_timeout 7d;                  │
-│ proxy_read_timeout 7d;                  │
-│ proxy_buffering off;                    │
-└─────────────────────────────────────────┘
 ```
 
 ✓ **Guardar esta location**
