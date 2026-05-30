@@ -1,16 +1,25 @@
 import { useRef } from "react";
 import type { BookmarkItem } from "../../types/bookmark";
 import { parseBookmarkHTML } from "../../utils/bookmarkParser";
+import { bookmarkAPI } from "../../services/bookmarkAPI";
 import { Icon } from "@iconify/react";
 
 interface BookmarkImporterProps {
   onImport: (data: BookmarkItem[]) => void;
 }
 
+/**
+ * Componente con botones para importar (HTML Chrome / JSON), exportar (JSON)
+ * y eliminar todos los bookmarks. Usa inputs file ocultos activados por los chips.
+ */
 export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const jsonInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Importa bookmarks desde un archivo HTML exportado de Chrome.
+   * Parsea la estructura DL/DT/A del HTML y la convierte al formato BookmarkItem.
+   */
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -34,30 +43,25 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
     };
     reader.readAsText(file);
 
-    // Resetear el input para permitir importar el mismo archivo de nuevo
     if (event.target) {
       event.target.value = "";
     }
   };
 
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
+  /**
+   * Exporta los bookmarks actuales del servidor como archivo JSON descargable.
+   * Obtiene los datos frescos del servidor para asegurar consistencia.
+   */
   const handleExport = async () => {
     try {
-      const response = await fetch("/api/bookmarks");
-      if (!response.ok) throw new Error("Error al obtener bookmarks");
-      const bookmarks = await response.json();
-      const dataStr = JSON.stringify(bookmarks, null, 2);
+      const response = await bookmarkAPI.getAll();
+      const dataStr = JSON.stringify(response.data, null, 2);
       const dataUri =
         "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
 
-      const exportFileDefaultName = "bookmarks.json";
-
       const linkElement = document.createElement("a");
       linkElement.setAttribute("href", dataUri);
-      linkElement.setAttribute("download", exportFileDefaultName);
+      linkElement.setAttribute("download", "bookmarks.json");
       linkElement.click();
     } catch (error) {
       console.error("Error al exportar:", error);
@@ -65,6 +69,10 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
     }
   };
 
+  /**
+   * Importa bookmarks desde un archivo JSON previamente exportado.
+   * Valida que sea un array y lo persiste en el servidor antes de actualizar el estado local.
+   */
   const handleImportJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -75,12 +83,7 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
       try {
         const importedData = JSON.parse(content);
         if (Array.isArray(importedData)) {
-          const response = await fetch("/api/bookmarks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(importedData),
-          });
-          if (!response.ok) throw new Error("Error al guardar bookmarks");
+          await bookmarkAPI.saveAll(importedData);
           onImport(importedData);
           alert("Bookmarks importados exitosamente");
         } else {
@@ -93,16 +96,15 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
     };
     reader.readAsText(file);
 
-    // Resetear el input
     if (event.target) {
       event.target.value = "";
     }
   };
 
-  const handleImportJSONClick = () => {
-    jsonInputRef.current?.click();
-  };
-
+  /**
+   * Elimina todos los bookmarks con doble confirmación (prompt "eliminar").
+   * Limpia tanto el servidor como el estado local.
+   */
   const handleDeleteAll = async () => {
     const confirmation = prompt(
       'Para confirmar la eliminación de todos los bookmarks, escribe "eliminar":',
@@ -113,10 +115,7 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
     }
 
     try {
-      const response = await fetch("/api/bookmarks", {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Error al eliminar bookmarks");
+      await bookmarkAPI.clearAll();
       onImport([]);
       alert("Todos los bookmarks han sido eliminados.");
     } catch (error) {
@@ -143,7 +142,7 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
       />
       <div
         className="chip"
-        onClick={handleImportClick}
+        onClick={() => fileInputRef.current?.click()}
         title="Importar desde Google Chrome Bookmarks"
       >
         <Icon
@@ -163,7 +162,7 @@ export function BookmarkImporter({ onImport }: BookmarkImporterProps) {
       </div>
       <div
         className="chip"
-        onClick={handleImportJSONClick}
+        onClick={() => jsonInputRef.current?.click()}
         title="Importar bookmarks desde JSON"
       >
         <Icon icon="solar:download-outline" height={18} width={18} />

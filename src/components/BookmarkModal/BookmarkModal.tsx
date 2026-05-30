@@ -19,6 +19,11 @@ interface BookmarkModalProps {
   onCancel: () => void;
 }
 
+/**
+ * Modal de formulario para crear/editar bookmarks y carpetas.
+ * Muestra campos de nombre, URL (solo para bookmarks), tags y favicon.
+ * Se renderiza via createPortal en document.body para evitar problemas de z-index.
+ */
 export function BookmarkModal({
   isOpen,
   isFolder,
@@ -97,6 +102,7 @@ export function BookmarkModal({
     onSave(bookmarkData);
   };
 
+  /** Obtiene el favicon de una URL via el endpoint /api/favicon del servidor. */
   const getFaviconAsBase64 = async (url: string): Promise<string | null> => {
     try {
       const response = await fetch(

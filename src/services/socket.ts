@@ -1,6 +1,11 @@
 import { io, Socket } from "socket.io-client";
+import type { BookmarkItem } from "../types/bookmark";
 
-// Obtener la URL base del servidor según el entorno
+/**
+ * Determina la URL del servidor WebSocket según el entorno.
+ * En localhost usa puerto 3001 directo; en otros dominios
+ * asume un reverse proxy en el mismo origen.
+ */
 const getSocketUrl = () => {
   // Si está configurado en variables de entorno, usar ese valor
   if (import.meta.env.VITE_SOCKET_URL) {
@@ -37,6 +42,11 @@ const SOCKET_URL = getSocketUrl();
 
 let socket: Socket | null = null;
 
+/**
+ * Servicio singleton de WebSocket para sincronización en tiempo real.
+ * Gestiona la conexión Socket.io, envío/recepción de actualizaciones
+ * de bookmarks y reconexión automática.
+ */
 export const socketService = {
   connect(): Socket {
     if (!socket) {
@@ -88,13 +98,13 @@ export const socketService = {
     return socket;
   },
 
-  onBookmarksUpdated(callback: (data: any) => void) {
+  onBookmarksUpdated(callback: (data: { data: BookmarkItem[] }) => void) {
     if (socket) {
       socket.on("bookmarks:updated", callback);
     }
   },
 
-  offBookmarksUpdated(callback?: (data: any) => void) {
+  offBookmarksUpdated(callback?: (data: { data: BookmarkItem[] }) => void) {
     if (socket) {
       if (callback) {
         socket.off("bookmarks:updated", callback);
@@ -104,7 +114,7 @@ export const socketService = {
     }
   },
 
-  updateBookmarks(bookmarks: any): Promise<{ success: boolean }> {
+  updateBookmarks(bookmarks: BookmarkItem[]): Promise<{ success: boolean }> {
     return new Promise((resolve, reject) => {
       if (!socket) {
         reject(new Error("Socket no conectado"));
@@ -121,7 +131,7 @@ export const socketService = {
         resolve(response);
       };
 
-      const handleError = (error: any) => {
+      const handleError = (error: { error: string }) => {
         socket?.off("bookmarks:saved", handleSaved);
         socket?.off("bookmarks:error", handleError);
         reject(error);

@@ -11,6 +11,11 @@ interface SidebarProps {
   onTagClick: (tag: string) => void;
 }
 
+/**
+ * Barra lateral con estadísticas del árbol (total items, carpetas, tags)
+ * y referencia rápida de atajos de teclado de react-arborist.
+ * Los tags son clickeables para activar búsqueda por tag.
+ */
 export function Sidebar({
   stats,
   tags,
