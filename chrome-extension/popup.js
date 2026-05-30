@@ -1,4 +1,4 @@
-const DEFAULT_API_URL = "http://localhost:3001";
+const DEFAULT_SERVER_URL = "http://localhost:3001";
 
 // === DOM Elements ===
 const viewMenu = document.getElementById("view-menu");
@@ -6,6 +6,7 @@ const viewAdd = document.getElementById("view-add");
 const viewSettings = document.getElementById("view-settings");
 
 const btnAddBookmark = document.getElementById("btn-add-bookmark");
+const btnEditBookmark = document.getElementById("btn-edit-bookmark");
 const btnOpenApp = document.getElementById("btn-open-app");
 const btnSettings = document.getElementById("btn-settings");
 const btnBackAdd = document.getElementById("btn-back-add");
@@ -23,7 +24,7 @@ const inputUrl = document.getElementById("input-url");
 const inputName = document.getElementById("input-name");
 const inputTags = document.getElementById("input-tags");
 const selectFolder = document.getElementById("select-folder");
-const inputApiUrl = document.getElementById("input-api-url");
+const inputServerUrl = document.getElementById("input-server-url");
 
 const faviconPreview = document.getElementById("favicon-preview");
 const formMessage = document.getElementById("form-message");
@@ -33,10 +34,11 @@ const statusText = document.querySelector(".status-text");
 const folderLoading = document.getElementById("folder-loading");
 
 // === State ===
-let apiUrl = DEFAULT_API_URL;
+let serverUrl = DEFAULT_SERVER_URL;
 let currentFavicon = "";
 let nameEditedByUser = false;
 let bookmarkTree = [];
+let editingBookmark = null; // bookmark existente que se está editando
 
 // === Init ===
 document.addEventListener("DOMContentLoaded", init);
@@ -45,16 +47,17 @@ async function init() {
   await loadSettings();
   checkServerStatus();
   setupEventListeners();
+  checkExistingBookmark();
 }
 
 // === Settings ===
 async function loadSettings() {
   return new Promise((resolve) => {
-    chrome.storage.sync.get(["apiUrl"], (result) => {
-      if (result.apiUrl) {
-        apiUrl = result.apiUrl;
+    chrome.storage.sync.get(["serverUrl"], (result) => {
+      if (result.serverUrl) {
+        serverUrl = result.serverUrl;
       }
-      inputApiUrl.value = apiUrl;
+      inputServerUrl.value = serverUrl;
       resolve();
     });
   });
@@ -62,14 +65,14 @@ async function loadSettings() {
 
 async function saveSettings(url) {
   return new Promise((resolve) => {
-    chrome.storage.sync.set({ apiUrl: url }, resolve);
+    chrome.storage.sync.set({ serverUrl: url }, resolve);
   });
 }
 
 // === Server Status ===
 async function checkServerStatus() {
   try {
-    const response = await fetch(`${apiUrl}/api/health`);
+    const response = await fetch(`${serverUrl}/api/health`);
     if (response.ok) {
       statusDot.className = "status-dot connected";
       statusText.textContent = "Conectado";
@@ -99,6 +102,7 @@ function showMenu() {
 // === Event Listeners ===
 function setupEventListeners() {
   btnAddBookmark.addEventListener("click", handleAddBookmark);
+  btnEditBookmark.addEventListener("click", handleEditBookmark);
   btnOpenApp.addEventListener("click", handleOpenApp);
   btnSettings.addEventListener("click", handleOpenSettings);
 
@@ -151,14 +155,44 @@ async function handleAddBookmark() {
   loadFolders();
 }
 
+async function handleEditBookmark() {
+  if (!editingBookmark) return;
+  showView(viewAdd);
+  nameEditedByUser = true;
+  hideMessage(formMessage);
+
+  inputUrl.value = editingBookmark.url || "";
+  inputName.value = editingBookmark.name || "";
+  inputTags.value = (editingBookmark.tags || []).join(", ");
+
+  if (editingBookmark.icon) {
+    currentFavicon = editingBookmark.icon;
+    faviconPreview.src = editingBookmark.icon;
+    faviconPreview.classList.remove("hidden");
+    btnRemoveFavicon.classList.remove("hidden");
+  } else {
+    currentFavicon = "";
+    faviconPreview.classList.add("hidden");
+    btnRemoveFavicon.classList.add("hidden");
+  }
+
+  await loadFolders();
+
+  // Seleccionar la carpeta donde está el bookmark
+  const parentId = findParentId(bookmarkTree, editingBookmark.id);
+  if (parentId) {
+    selectFolder.value = parentId;
+  }
+}
+
 function handleOpenApp() {
-  chrome.tabs.create({ url: apiUrl });
+  chrome.tabs.create({ url: serverUrl });
   window.close();
 }
 
 function handleOpenSettings() {
   showView(viewSettings);
-  inputApiUrl.value = apiUrl;
+  inputServerUrl.value = serverUrl;
   hideMessage(settingsMessage);
 }
 
@@ -187,7 +221,7 @@ async function handleFetchFavicon() {
 
   try {
     const response = await fetch(
-      `${apiUrl}/api/favicon?url=${encodeURIComponent(url)}`,
+      `${serverUrl}/api/favicon?url=${encodeURIComponent(url)}`,
     );
     if (response.ok) {
       const data = await response.json();
@@ -230,10 +264,11 @@ async function handleSaveBookmark(e) {
   const folderId = selectFolder.value;
 
   const bookmark = {
-    id: Date.now().toString(),
+    id: editingBookmark ? editingBookmark.id : Date.now().toString(),
     name,
     url: url || undefined,
-    addDate: Math.floor(Date.now() / 1000).toString(),
+    addDate:
+      editingBookmark?.addDate || Math.floor(Date.now() / 1000).toString(),
     tags: tags.length > 0 ? tags : undefined,
     icon: currentFavicon || undefined,
   };
@@ -242,16 +277,25 @@ async function handleSaveBookmark(e) {
   btnSave.innerHTML = '<span class="spinner"></span> Guardando...';
 
   try {
-    // Add bookmark to the tree
     let updatedTree;
-    if (folderId === "root") {
-      updatedTree = [...bookmarkTree, bookmark];
+    if (editingBookmark) {
+      // Remove old bookmark from tree, then re-insert
+      updatedTree = removeFromTree(bookmarkTree, editingBookmark.id);
+      if (folderId === "root") {
+        updatedTree = [...updatedTree, bookmark];
+      } else {
+        updatedTree = addToFolder(updatedTree, folderId, bookmark);
+      }
     } else {
-      updatedTree = addToFolder(bookmarkTree, folderId, bookmark);
+      if (folderId === "root") {
+        updatedTree = [...bookmarkTree, bookmark];
+      } else {
+        updatedTree = addToFolder(bookmarkTree, folderId, bookmark);
+      }
     }
 
     // Save to server
-    const response = await fetch(`${apiUrl}/api/bookmarks`, {
+    const response = await fetch(`${serverUrl}/api/bookmarks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedTree),
@@ -259,6 +303,7 @@ async function handleSaveBookmark(e) {
 
     if (!response.ok) throw new Error("Error al guardar");
 
+    editingBookmark = null;
     showMessage(formMessage, "Bookmark guardado correctamente", "success");
     setTimeout(() => window.close(), 1200);
   } catch (err) {
@@ -276,11 +321,11 @@ async function handleSaveBookmark(e) {
 async function handleSaveSettings(e) {
   e.preventDefault();
 
-  const newUrl = inputApiUrl.value.trim().replace(/\/+$/, "");
+  const newUrl = inputServerUrl.value.trim().replace(/\/+$/, "");
   if (!newUrl) return;
 
-  apiUrl = newUrl;
-  await saveSettings(apiUrl);
+  serverUrl = newUrl;
+  await saveSettings(serverUrl);
   showMessage(settingsMessage, "Configuración guardada", "success");
   checkServerStatus();
   setTimeout(showMenu, 800);
@@ -292,7 +337,7 @@ async function loadFolders() {
   selectFolder.innerHTML = '<option value="root">/ (raíz)</option>';
 
   try {
-    const response = await fetch(`${apiUrl}/api/bookmarks`);
+    const response = await fetch(`${serverUrl}/api/bookmarks`);
     if (!response.ok) throw new Error("Error");
 
     const result = await response.json();
@@ -337,6 +382,64 @@ function addToFolder(tree, folderId, bookmark) {
     }
     return item;
   });
+}
+
+// === Search existing bookmark ===
+async function checkExistingBookmark() {
+  try {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!tab || !tab.url) return;
+
+    const response = await fetch(`${serverUrl}/api/bookmarks`);
+    if (!response.ok) return;
+
+    const result = await response.json();
+    bookmarkTree = result.data || [];
+
+    const found = findBookmarkByUrl(bookmarkTree, tab.url);
+    if (found) {
+      editingBookmark = found;
+      btnEditBookmark.classList.remove("hidden");
+    }
+  } catch {
+    // Server not available
+  }
+}
+
+function findBookmarkByUrl(tree, url) {
+  for (const item of tree) {
+    if (item.url === url) return item;
+    if (item.children) {
+      const found = findBookmarkByUrl(item.children, url);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function findParentId(tree, bookmarkId, parentId = "root") {
+  for (const item of tree) {
+    if (item.id === bookmarkId) return parentId;
+    if (item.children) {
+      const found = findParentId(item.children, bookmarkId, item.id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function removeFromTree(tree, id) {
+  return tree
+    .filter((item) => item.id !== id)
+    .map((item) => {
+      if (item.children) {
+        return { ...item, children: removeFromTree(item.children, id) };
+      }
+      return item;
+    });
 }
 
 // === UI Helpers ===
