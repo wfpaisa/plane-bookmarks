@@ -277,10 +277,8 @@ body {
   cursor: pointer;
 
   & option {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    font-size: 1.25rem;
-    padding: 0.375rem 0.625rem;
+    background-color: #1a1f29;
+    color: #e4e6eb;
   }
 }
 
