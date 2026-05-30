@@ -211,11 +211,12 @@ export function MainContent({
                 openByDefault={false}
                 width={dimensions.width}
                 height={dimensions.height}
-                rowHeight={40}
+                rowHeight={48}
                 renderCursor={DropCursor}
                 searchTerm={searchTerm}
                 searchMatch={searchMatch}
-                paddingBottom={40}
+                paddingBottom={12}
+                indent={48}
               >
                 {TreeNode}
               </Tree>

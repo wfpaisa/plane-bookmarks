@@ -29,9 +29,9 @@ export function TreeNode({
       onClick={(e) => node.handleClick(e)}
     >
       <FolderArrow node={node} />
-      <span className="node-icon">
-        {node.isLeaf ? (
-          node.data.icon && node.data.icon.trim() !== "" ? (
+      {node.isLeaf && (
+        <span className="node-icon">
+          {node.data.icon && node.data.icon.trim() !== "" ? (
             <a
               href={node.data.url}
               target="_blank"
@@ -39,28 +39,18 @@ export function TreeNode({
               className="node-link"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={node.data.icon}
-                alt=""
-                style={{ width: 18, height: 18 }}
-              />
+              <img src={node.data.icon} alt="" className="node-favicon" />
             </a>
           ) : (
-            <Icon icon="solar:bookmark-linear" width={18} height={18} />
-          )
-        ) : (
-          <Icon
-            icon={
-              node.isOpen
-                ? "solar:folder-open-bold-duotone"
-                : "solar:folder-bold-duotone"
-            }
-            width={18}
-            height={18}
-            className="folder-icon"
-          />
-        )}
-      </span>
+            <Icon
+              icon="solar:bookmark-linear"
+              className="node-bookmark-icon"
+              width={16}
+              height={16}
+            />
+          )}
+        </span>
+      )}
       <span className="node-name">
         {node.isEditing ? (
           <NodeInput node={node} />
@@ -116,7 +106,7 @@ export function TreeNode({
 
 /** Flecha de expansión/colapso para nodos carpeta. Click solo en el icono abre/cierra. */
 function FolderArrow({ node }: { node: NodeApi<BookmarkItem> }) {
-  if (node.isLeaf) return <span className="node-arrow"></span>;
+  if (node.isLeaf) return null;
   return (
     <span
       className="node-arrow clickable"
@@ -126,9 +116,19 @@ function FolderArrow({ node }: { node: NodeApi<BookmarkItem> }) {
       }}
     >
       {node.isOpen ? (
-        <Icon icon="solar:minus-square-line-duotone" width={24} height={24} />
+        <Icon
+          icon="solar:folder-open-bold-duotone"
+          width={24}
+          height={24}
+          className="folder-icon"
+        />
       ) : (
-        <Icon icon="solar:add-square-line-duotone" width={24} height={24} />
+        <Icon
+          icon="solar:folder-bold-duotone"
+          width={24}
+          height={24}
+          className="folder-icon"
+        />
       )}
     </span>
   );
