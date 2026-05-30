@@ -64,22 +64,10 @@ export function BookmarkModal({
       }
     };
 
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(e.target as Node) &&
-        isOpen
-      ) {
-        onCancel();
-      }
-    };
-
     document.addEventListener("keydown", handleEscape);
-    document.addEventListener("click", handleClickOutside);
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.removeEventListener("click", handleClickOutside);
     };
   }, [isOpen, onCancel]);
 
@@ -142,10 +130,17 @@ export function BookmarkModal({
     }
   };
 
+  /** Cierra el modal al hacer click en el overlay (fondo oscuro). */
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onCancel();
+    }
+  };
+
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="modal-overlay">
+    <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-container" ref={modalRef}>
         <div className="modal-header">
           <h2 className="modal-title">
