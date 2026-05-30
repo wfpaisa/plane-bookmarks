@@ -98,11 +98,12 @@ Si estás usando **Portainer** para desplegar desde un repositorio Git:
 3. **Repository URL:** URL de tu repositorio
 4. **Compose path:** `docker-compose.prod.yml`
 5. **Environment variables:**
+
    ```
    VITE_API_URL=/api
    NODE_ENV=production
    ```
-   
+
    ⚠️ **IMPORTANTE:** NO agregues `VITE_SOCKET_URL`. El sistema detecta automáticamente el dominio.
 
 6. Deploy the stack
@@ -110,6 +111,7 @@ Si estás usando **Portainer** para desplegar desde un repositorio Git:
 📖 **Guía completa:** [`docs/portainer-setup.md`](docs/portainer-setup.md)
 
 **Script de verificación:**
+
 ```bash
 ./scripts/check-docker-config.sh
 ```
@@ -222,6 +224,47 @@ Abre la consola del navegador (F12) y deberías ver:
 ✅ WebSocket conectado exitosamente
    Transport: websocket
 ```
+
+## 🧩 Extensión de Chrome
+
+La extensión permite agregar y editar bookmarks directamente desde cualquier pestaña del navegador, sin necesidad de abrir la aplicación web.
+
+### Funcionalidades
+
+- **Agregar bookmark** — Guarda la pestaña actual con nombre, URL, tags y favicon automáticos
+- **Editar bookmark** — Si la URL ya existe en tus bookmarks, permite editarlo
+- **Selección de carpeta** — Elige en qué carpeta del árbol guardar el bookmark
+- **Obtener favicon** — Descarga automáticamente el icono del sitio
+- **Abrir app** — Acceso directo a la aplicación web
+- **Configuración** — URL del servidor configurable
+
+### Instalación en modo desarrollo
+
+1. Abre Chrome y ve a `chrome://extensions/`
+2. Activa el **Modo de desarrollador** (esquina superior derecha)
+3. Haz clic en **Cargar extensión sin empaquetar**
+4. Selecciona la carpeta `chrome-extension/` del proyecto
+5. La extensión aparecerá en la barra de herramientas de Chrome
+
+### Configuración
+
+Por defecto, la extensión se conecta a `http://localhost:3001`. Si tu servidor está en otra dirección:
+
+1. Haz clic en el icono de la extensión
+2. Selecciona **Configuración** (icono de engranaje)
+3. Ingresa la URL del servidor (ej: `https://tu-dominio.com`)
+4. Guarda los cambios
+
+### Regenerar iconos
+
+Si necesitas regenerar los iconos de la extensión:
+
+```bash
+cd chrome-extension
+bun generate-icons.js
+```
+
+> **Nota:** El servidor backend debe estar corriendo para que la extensión funcione (`bun run dev`).
 
 ## Licencia
 

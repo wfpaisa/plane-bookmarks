@@ -140,6 +140,36 @@ bun run lint       # ESLint
 - `bookmarks:saved` (server → sender) — Confirmación
 - `bookmarks:error` (server → sender) — Error
 
+## Extensión de Chrome
+
+Ubicada en `chrome-extension/`. Permite agregar/editar bookmarks desde cualquier pestaña sin abrir la app.
+
+### Archivos
+
+- `manifest.json` — Manifest V3, permisos: `activeTab`, `storage`
+- `popup.html` — UI del popup con 3 vistas: menú, formulario, configuración
+- `popup.js` — Lógica completa (vanilla JS, sin framework)
+- `popup.css` — Estilos del popup
+- `generate-icons.js` — Script para generar iconos PNG desde SVG
+- `icons/` — Iconos generados (16, 48, 128px)
+
+### Flujo
+
+1. Al abrir el popup, se carga la URL del servidor desde `chrome.storage.sync`
+2. Verifica conexión via `/api/health`
+3. Busca si la URL actual ya existe en bookmarks (`checkExistingBookmark`)
+4. Si existe → muestra botón "Editar", si no → solo "Agregar"
+5. Al guardar, obtiene el árbol completo, inserta/actualiza el bookmark, y hace POST del árbol completo
+
+### Configuración del servidor
+
+Por defecto `http://localhost:3001`. Configurable desde el popup → Configuración. Se persiste en `chrome.storage.sync`.
+
+### Instalación en desarrollo
+
+1. `chrome://extensions/` → Modo desarrollador → Cargar extensión sin empaquetar → seleccionar carpeta `chrome-extension/`
+2. Requiere que el servidor backend esté corriendo (`bun run dev`)
+
 ## react-arborist — Referencia Rápida
 
 El componente `<Tree>` recibe:
