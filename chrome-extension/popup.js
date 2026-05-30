@@ -146,6 +146,13 @@ async function handleAddBookmark() {
       } else {
         autoFillName(tab.url);
       }
+      // Usar el favicon que Chrome ya tiene de la pestaña
+      if (tab.favIconUrl) {
+        currentFavicon = tab.favIconUrl;
+        faviconPreview.src = tab.favIconUrl;
+        faviconPreview.classList.remove("hidden");
+        btnRemoveFavicon.classList.remove("hidden");
+      }
     }
   } catch {
     // Can't access tab, leave fields empty

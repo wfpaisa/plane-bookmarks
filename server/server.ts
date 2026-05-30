@@ -104,8 +104,9 @@ app.delete("/api/bookmarks", async (req, res) => {
 
 /**
  * GET /api/favicon - Obtiene el favicon de una URL como base64.
- * Usa el servicio de Google Favicons y procesa la imagen con sharp
- * a 32x32px PNG para almacenamiento eficiente.
+ * Usa el servicio de Google Favicons para dominios públicos,
+ * o fetch directo para IPs locales/privadas.
+ * Procesa la imagen con sharp a 32x32px PNG.
  */
 app.get("/api/favicon", async (req, res) => {
   try {
@@ -116,47 +117,135 @@ app.get("/api/favicon", async (req, res) => {
     }
 
     const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
 
-    // Usar servicio de Google para obtener favicons (confiable y rápido)
-    const googleFavicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=128`;
+    // Detectar si es una IP local/privada o localhost
+    const isLocal =
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+      hostname.endsWith(".local");
 
-    try {
-      // Intentar el servicio de Google directamente (más confiable)
-      const response = await fetch(googleFavicon, {
-        headers: { "User-Agent": "Mozilla/5.0" },
-        redirect: "follow",
-      });
+    let iconDataUrl: string | null = null;
 
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+    if (!isLocal) {
+      // Usar servicio de Google para dominios públicos (confiable y rápido)
+      const googleFavicon = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
 
-        if (buffer.length > 0) {
-          // Procesar con sharp
-          const processedBuffer = await sharp(buffer)
-            .resize(32, 32, {
-              fit: "contain",
-              background: { r: 0, g: 0, b: 0, alpha: 0 },
-            })
-            .png({ quality: 80, compressionLevel: 9 })
-            .toBuffer();
+      try {
+        const response = await fetch(googleFavicon, {
+          headers: { "User-Agent": "Mozilla/5.0" },
+          redirect: "follow",
+        });
 
-          const base64 = processedBuffer.toString("base64");
-          const dataUrl = `data:image/png;base64,${base64}`;
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
 
-          return res.json({ success: true, icon: dataUrl });
+          if (buffer.length > 0) {
+            const processedBuffer = await sharp(buffer)
+              .resize(32, 32, {
+                fit: "contain",
+                background: { r: 0, g: 0, b: 0, alpha: 0 },
+              })
+              .png({ quality: 80, compressionLevel: 9 })
+              .toBuffer();
+
+            const base64 = processedBuffer.toString("base64");
+            iconDataUrl = `data:image/png;base64,${base64}`;
+          }
         }
+      } catch {
+        console.log(`Google favicon no disponible para ${hostname}`);
       }
-    } catch {
-      // Si Google falla, log y continuar
-      console.log(`Favicon no disponible para ${urlObj.hostname}`);
     }
 
-    // Devolver null si no se puede obtener el favicon
-    return res.json({ success: true, icon: null });
+    // Fallback: fetch directo del favicon desde el sitio
+    if (!iconDataUrl) {
+      const origin = urlObj.origin;
+      const faviconUrls = [`${origin}/favicon.ico`, `${origin}/favicon.png`];
+
+      // Intentar obtener la URL del favicon desde el HTML
+      try {
+        const pageResponse = await fetch(origin, {
+          headers: { "User-Agent": "Mozilla/5.0" },
+          redirect: "follow",
+          signal: AbortSignal.timeout(5000),
+        });
+
+        if (pageResponse.ok) {
+          const html = await pageResponse.text();
+          const iconMatch =
+            html.match(
+              /<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i,
+            ) ||
+            html.match(
+              /<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i,
+            );
+
+          if (iconMatch?.[1]) {
+            let iconHref = iconMatch[1];
+            // Resolver URLs relativas
+            if (iconHref.startsWith("//")) {
+              iconHref = `${urlObj.protocol}${iconHref}`;
+            } else if (iconHref.startsWith("/")) {
+              iconHref = `${origin}${iconHref}`;
+            } else if (!iconHref.startsWith("http")) {
+              iconHref = `${origin}/${iconHref}`;
+            }
+            // Poner al inicio de la lista de URLs a probar
+            faviconUrls.unshift(iconHref);
+          }
+        }
+      } catch {
+        // No se pudo parsear el HTML, continuar con las rutas por defecto
+      }
+
+      for (const faviconUrl of faviconUrls) {
+        try {
+          const response = await fetch(faviconUrl, {
+            headers: { "User-Agent": "Mozilla/5.0" },
+            redirect: "follow",
+            signal: AbortSignal.timeout(5000),
+          });
+
+          if (response.ok) {
+            const contentType = response.headers.get("content-type") || "";
+            if (
+              contentType.includes("image") ||
+              faviconUrl.endsWith(".ico") ||
+              faviconUrl.endsWith(".png")
+            ) {
+              const arrayBuffer = await response.arrayBuffer();
+              const buffer = Buffer.from(arrayBuffer);
+
+              if (buffer.length > 0) {
+                const processedBuffer = await sharp(buffer)
+                  .resize(32, 32, {
+                    fit: "contain",
+                    background: { r: 0, g: 0, b: 0, alpha: 0 },
+                  })
+                  .png({ quality: 80, compressionLevel: 9 })
+                  .toBuffer();
+
+                const base64 = processedBuffer.toString("base64");
+                iconDataUrl = `data:image/png;base64,${base64}`;
+                break;
+              }
+            }
+          }
+        } catch {
+          // Intentar siguiente URL
+        }
+      }
+    }
+
+    return res.json({ success: true, icon: iconDataUrl });
   } catch (error) {
     console.error("Error fetching favicon:", error);
-    // Devolver null en lugar de error para que la app siga funcionando
     res.json({ success: true, icon: null });
   }
 });
