@@ -49,6 +49,7 @@ NODE_ENV=production
 ### Setup para contenedor Docker:
 
 1. **Obtener la IP del servidor Docker:**
+
 ```bash
 # SSH al servidor
 hostname -I
@@ -58,8 +59,9 @@ hostname -I
 2. **En Nginx Proxy Manager:**
 
 **Proxy Host:**
+
 ```
-Domain Names: local-book.wfelipe.com
+Domain Names: local-book.tu-dominio.com
 Scheme: http
 Forward Hostname/IP: 192.168.1.100  ← IP del servidor Docker
 Forward Port: 5173
@@ -68,6 +70,7 @@ Forward Port: 5173
 ```
 
 **Custom Location: `/api`**
+
 ```
 Location: /api
 Scheme: http
@@ -76,6 +79,7 @@ Forward Port: 3001
 ```
 
 **Custom Location: `/socket.io/`**
+
 ```
 Location: /socket.io/
 Scheme: http
@@ -93,6 +97,7 @@ proxy_buffering off;
 ```
 
 **SSL:**
+
 ```
 ☑ Force SSL
 ☑ HTTP/2 Support
@@ -114,8 +119,8 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"  # Frontend
-      - "3001:3001"  # Backend + WebSocket
+      - "5173:5173" # Frontend
+      - "3001:3001" # Backend + WebSocket
     volumes:
       - bookmark-data:/usr/src/app/server/data
     environment:
@@ -192,6 +197,7 @@ docker ps | grep plane-bookmark
 En Portainer → Containers → plane-bookmark → Logs
 
 Deberías ver:
+
 ```
 🚀 Servidor ejecutándose en http://0.0.0.0:3001
 🔌 WebSocket habilitado
@@ -199,11 +205,11 @@ Deberías ver:
 
 ### 3. Verificar desde el navegador:
 
-Abre `https://local-book.wfelipe.com` y en la consola (F12):
+Abre `https://local-book.tu-dominio.com` y en la consola (F12):
 
 ```
 🚀 Plane Bookmark v1.0.1
-🔌 Iniciando conexión WebSocket a: https://local-book.wfelipe.com
+🔌 Iniciando conexión WebSocket a: https://local-book.tu-dominio.com
 ✅ WebSocket conectado exitosamente
    Transport: websocket
 ```
@@ -217,6 +223,7 @@ Abre `https://local-book.wfelipe.com` y en la consola (F12):
 **Causa:** La variable `VITE_SOCKET_URL` está configurada en Portainer
 
 **Solución:**
+
 1. Portainer → Stacks → plane-bookmark → Editor
 2. Eliminar línea: `- VITE_SOCKET_URL=...`
 3. Click "Update the stack"
@@ -227,6 +234,7 @@ Abre `https://local-book.wfelipe.com` y en la consola (F12):
 **Causa:** Nginx no puede alcanzar el contenedor
 
 **Solución:**
+
 1. Verifica que los puertos 5173 y 3001 estén publicados
 2. Verifica que uses la IP correcta del servidor Docker
 3. Prueba: `curl http://IP-SERVIDOR:3001/api/health`
@@ -236,6 +244,7 @@ Abre `https://local-book.wfelipe.com` y en la consola (F12):
 **Causa:** Nginx no tiene configurado el upgrade de WebSocket
 
 **Solución:**
+
 1. Verifica la Custom Location `/socket.io/`
 2. Asegúrate que tiene el custom config de WebSocket
 3. Verifica que termine en `/` → `/socket.io/`
@@ -249,7 +258,7 @@ Internet
     │
     ▼
 Nginx Proxy Manager (NPM)
-    │ (https://local-book.wfelipe.com)
+    │ (https://local-book.tu-dominio.com)
     │
     ├─→ / → Servidor Docker:5173 (Frontend)
     │
@@ -339,8 +348,9 @@ docker run --rm -v plane-bookmark_bookmark-data:/data -v $(pwd):/backup ubuntu t
 Si todos los checks están ✅, tu aplicación debería funcionar correctamente.
 
 La consola del navegador debería mostrar:
+
 ```
-🔌 Iniciando conexión WebSocket a: https://local-book.wfelipe.com
+🔌 Iniciando conexión WebSocket a: https://local-book.tu-dominio.com
 ✅ WebSocket conectado exitosamente
    Transport: websocket
 ```
