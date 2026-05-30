@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Plane Bookmark",
+  "description": "Agrega bookmarks rápidamente a Plane Bookmark desde cualquier pestaña",
+  "version": "1.0.0",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Plane Bookmark"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
