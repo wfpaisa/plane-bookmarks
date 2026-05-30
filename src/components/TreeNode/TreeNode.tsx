@@ -17,6 +17,7 @@ export function TreeNode({
   node,
   style,
   dragHandle,
+  tree,
 }: NodeRendererProps<BookmarkItem>) {
   return (
     <div
@@ -80,8 +81,47 @@ export function TreeNode({
           }}
           title="Editar"
         >
-          <Icon icon="solar:pen-linear" width={16} height={16} />
+          <Icon icon="solar:pen-linear" width={24} height={24} />
         </span>
+      )}
+      {!node.isEditing && (
+        <span
+          className="node-delete-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            tree.delete(node);
+          }}
+          title={node.isLeaf ? "Eliminar bookmark" : "Eliminar carpeta"}
+        >
+          <Icon icon="solar:trash-bin-trash-linear" width={24} height={24} />
+        </span>
+      )}
+      {!node.isLeaf && !node.isEditing && (
+        <>
+          {/* Agrega un bookmar */}
+          <span
+            className="node-add-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              tree.create({ parentId: node.id, type: "leaf" });
+            }}
+            title="Agregar bookmark"
+          >
+            <Icon icon="solar:add-square-line-duotone" width={24} height={24} />
+          </span>
+
+          {/* Agrega una carpeta */}
+          <span
+            className="node-add-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              tree.create({ parentId: node.id, type: "internal" });
+            }}
+            title="Agregar carpeta"
+          >
+            <Icon icon="solar:add-folder-line-duotone" width={24} height={24} />
+          </span>
+        </>
       )}
       {node.isLeaf && node.data.url && (
         <span className="node-url">

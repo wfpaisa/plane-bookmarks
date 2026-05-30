@@ -156,7 +156,7 @@ export function useBookmarks() {
       const newId = Date.now().toString();
       const newItem: BookmarkItem = {
         id: newId,
-        name: type === "internal" ? "Nueva Carpeta" : "",
+        name: type === "internal" ? "" : "",
         ...(type === "internal" && { children: [] }),
       };
 
