@@ -19,6 +19,11 @@ interface BookmarkModalProps {
   onCancel: () => void;
 }
 
+/**
+ * Modal de formulario para crear/editar bookmarks y carpetas.
+ * Muestra campos de nombre, URL (solo para bookmarks), tags y favicon.
+ * Se renderiza via createPortal en document.body para evitar problemas de z-index.
+ */
 export function BookmarkModal({
   isOpen,
   isFolder,
@@ -37,6 +42,7 @@ export function BookmarkModal({
   const nameInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousIsOpen = useRef(isOpen);
+  const nameEditedByUser = useRef(false);
 
   useEffect(() => {
     // Solo reiniciar valores cuando el modal se abre (transición de false a true)
@@ -45,6 +51,7 @@ export function BookmarkModal({
       setUrl(initialUrl);
       setTags(initialTags.join(", "));
       setIcon(initialIcon);
+      nameEditedByUser.current = false;
       setTimeout(() => nameInputRef.current?.focus(), 100);
     }
     previousIsOpen.current = isOpen;
@@ -97,6 +104,7 @@ export function BookmarkModal({
     onSave(bookmarkData);
   };
 
+  /** Obtiene el favicon de una URL via el endpoint /api/favicon del servidor. */
   const getFaviconAsBase64 = async (url: string): Promise<string | null> => {
     try {
       const response = await fetch(
@@ -156,6 +164,38 @@ export function BookmarkModal({
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
+          {!isFolder && (
+            <div className="form-group">
+              <label className="form-label">
+                <Icon icon="solar:link-bold" width={16} height={16} />
+                URL
+              </label>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  if (!nameEditedByUser.current) {
+                    try {
+                      const hostname = new URL(
+                        e.target.value.trim(),
+                      ).hostname.replace(/^www\./, "");
+                      const withoutTld = hostname.replace(/\.[^.]+$/, "");
+                      setName(
+                        withoutTld.charAt(0).toUpperCase() +
+                          withoutTld.slice(1),
+                      );
+                    } catch {
+                      // URL incompleta, no hacer nada
+                    }
+                  }
+                }}
+                className="form-input"
+                placeholder="https://ejemplo.com"
+              />
+            </div>
+          )}
+
           <div className="form-group">
             <label className="form-label">
               <Icon icon="solar:text-bold" width={16} height={16} />
@@ -165,7 +205,10 @@ export function BookmarkModal({
               ref={nameInputRef}
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                nameEditedByUser.current = true;
+                setName(e.target.value);
+              }}
               className="form-input"
               placeholder={
                 isFolder ? "Nombre de carpeta" : "Nombre del bookmark"
@@ -178,16 +221,17 @@ export function BookmarkModal({
             <>
               <div className="form-group">
                 <label className="form-label">
-                  <Icon icon="solar:link-bold" width={16} height={16} />
-                  URL
+                  <Icon icon="solar:tag-bold" width={16} height={16} />
+                  Tags
                 </label>
                 <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
+                  type="text"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
                   className="form-input"
-                  placeholder="https://ejemplo.com"
+                  placeholder="desarrollo, react, javascript"
                 />
+                <span className="form-hint">Separa los tags con comas</span>
               </div>
 
               <div className="form-group">
@@ -247,21 +291,6 @@ export function BookmarkModal({
                     </button>
                   )}
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  <Icon icon="solar:tag-bold" width={16} height={16} />
-                  Tags
-                </label>
-                <input
-                  type="text"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  className="form-input"
-                  placeholder="desarrollo, react, javascript"
-                />
-                <span className="form-hint">Separa los tags con comas</span>
               </div>
             </>
           )}

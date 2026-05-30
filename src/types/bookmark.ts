@@ -1,3 +1,8 @@
+/**
+ * Estructura de datos de un bookmark o carpeta.
+ * Las carpetas se distinguen por tener el campo `children`.
+ * Los bookmarks hoja tienen `url` y opcionalmente `icon` y `tags`.
+ */
 export type BookmarkItem = {
   id: string;
   name: string;
@@ -6,5 +11,5 @@ export type BookmarkItem = {
   icon?: string;
   tags?: string[];
   children?: BookmarkItem[];
-  isOpen?: boolean; // Estado abierto/cerrado de la carpeta
+  isOpen?: boolean;
 };

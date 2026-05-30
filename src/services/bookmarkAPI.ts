@@ -1,10 +1,18 @@
 import type { BookmarkItem } from "../types/bookmark";
 
-// Usar proxy de Vite en desarrollo, o variable de entorno
+/**
+ * URL base de la API REST. Usa el proxy de Vite en desarrollo
+ * o la variable VITE_API_URL configurada en producción.
+ */
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
+/**
+ * Cliente REST para operaciones CRUD de bookmarks.
+ * Centraliza todas las llamadas HTTP al servidor para evitar
+ * URLs y lógica de fetch duplicadas en los componentes.
+ */
 export const bookmarkAPI = {
-  // Obtener todos los bookmarks
+  /** Obtiene el árbol completo de bookmarks desde el servidor. */
   async getAll(): Promise<{ data: BookmarkItem[] }> {
     try {
       const response = await fetch(`${API_URL}/bookmarks`);
@@ -18,7 +26,7 @@ export const bookmarkAPI = {
     }
   },
 
-  // Guardar todos los bookmarks
+  /** Guarda un árbol completo de bookmarks (reemplaza los existentes). */
   async saveAll(bookmarks: BookmarkItem[]): Promise<BookmarkItem[]> {
     try {
       const response = await fetch(`${API_URL}/bookmarks`, {
@@ -39,7 +47,7 @@ export const bookmarkAPI = {
     }
   },
 
-  // Actualizar todos los bookmarks (sincronizar)
+  /** Actualiza los bookmarks en el servidor (sincronización incremental). */
   async updateAll(bookmarks: BookmarkItem[]): Promise<BookmarkItem[]> {
     try {
       const response = await fetch(`${API_URL}/bookmarks`, {
@@ -60,7 +68,7 @@ export const bookmarkAPI = {
     }
   },
 
-  // Limpiar todos los bookmarks
+  /** Elimina todos los bookmarks del servidor. */
   async clearAll(): Promise<void> {
     try {
       const response = await fetch(`${API_URL}/bookmarks`, {
@@ -75,7 +83,7 @@ export const bookmarkAPI = {
     }
   },
 
-  // Health check
+  /** Verifica si el servidor está disponible. Retorna false si no responde. */
   async healthCheck(): Promise<boolean> {
     try {
       const response = await fetch(`${API_URL}/health`);

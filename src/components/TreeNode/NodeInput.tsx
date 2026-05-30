@@ -2,12 +2,17 @@ import { useEffect, useContext } from "react";
 import { NodeApi } from "react-arborist";
 import type { BookmarkItem } from "../../types/bookmark";
 import { BookmarkModal } from "../BookmarkModal";
-import { BookmarkContext } from "../MainContent/MainContent";
+import { BookmarkContext } from "../../contexts/BookmarkContext";
 
 interface NodeInputProps {
   node: NodeApi<BookmarkItem>;
 }
 
+/**
+ * Componente de edición inline que se muestra cuando un nodo entra en modo edición.
+ * Para carpetas solo edita el nombre; para bookmarks abre BookmarkModal
+ * con todos los campos (nombre, URL, tags, icono).
+ */
 export function NodeInput({ node }: NodeInputProps) {
   const { onUpdate } = useContext(BookmarkContext);
 
@@ -16,6 +21,10 @@ export function NodeInput({ node }: NodeInputProps) {
     node.tree.scrollTo(node.id, "center");
   }, [node]);
 
+  /**
+   * Guarda los cambios del modal. Para carpetas solo renombra via node.submit;
+   * para bookmarks actualiza todos los campos via onUpdate del contexto.
+   */
   const handleSave = (data: {
     name: string;
     url: string;

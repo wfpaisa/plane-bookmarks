@@ -28,7 +28,7 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// Asegurar que la carpeta data existe
+/** Crea la carpeta data/ si no existe al iniciar el servidor. */
 async function ensureDataDirectory() {
   const dataDir = path.join(__dirname, "data");
   try {
@@ -38,25 +38,25 @@ async function ensureDataDirectory() {
   }
 }
 
-// Leer bookmarks desde el archivo
+/** Lee el archivo JSON de bookmarks. Retorna [] si no existe. */
 async function readBookmarks() {
   try {
     const data = await fs.readFile(DATA_FILE, "utf-8");
     return JSON.parse(data);
-  } catch (error) {
+  } catch {
     // Si el archivo no existe, devolver un array vacío
     return [];
   }
 }
 
-// Escribir bookmarks al archivo
-async function writeBookmarks(bookmarks: any) {
+/** Escribe bookmarks al archivo y notifica a todos los clientes via WebSocket. */
+async function writeBookmarks(bookmarks: unknown) {
   await fs.writeFile(DATA_FILE, JSON.stringify(bookmarks, null, 2), "utf-8");
   // Emitir evento de actualización a todos los clientes conectados
   io.emit("bookmarks:updated", { data: bookmarks });
 }
 
-// GET - Obtener todos los bookmarks
+/** GET /api/bookmarks - Retorna el árbol completo de bookmarks. */
 app.get("/api/bookmarks", async (req, res) => {
   try {
     const bookmarks = await readBookmarks();
@@ -67,7 +67,7 @@ app.get("/api/bookmarks", async (req, res) => {
   }
 });
 
-// POST - Guardar todos los bookmarks (reemplaza todo)
+/** POST /api/bookmarks - Reemplaza todo el árbol de bookmarks. */
 app.post("/api/bookmarks", async (req, res) => {
   try {
     const bookmarks = req.body;
@@ -79,7 +79,7 @@ app.post("/api/bookmarks", async (req, res) => {
   }
 });
 
-// PUT - Actualizar bookmarks (sincronizar)
+/** PUT /api/bookmarks - Sincroniza/actualiza el árbol de bookmarks. */
 app.put("/api/bookmarks", async (req, res) => {
   try {
     const bookmarks = req.body;
@@ -91,7 +91,7 @@ app.put("/api/bookmarks", async (req, res) => {
   }
 });
 
-// DELETE - Limpiar todos los bookmarks
+/** DELETE /api/bookmarks - Elimina todos los bookmarks. */
 app.delete("/api/bookmarks", async (req, res) => {
   try {
     await writeBookmarks([]);
@@ -102,7 +102,11 @@ app.delete("/api/bookmarks", async (req, res) => {
   }
 });
 
-// GET - Obtener favicon de una URL
+/**
+ * GET /api/favicon - Obtiene el favicon de una URL como base64.
+ * Usa el servicio de Google Favicons y procesa la imagen con sharp
+ * a 32x32px PNG para almacenamiento eficiente.
+ */
 app.get("/api/favicon", async (req, res) => {
   try {
     const { url } = req.query;
@@ -112,9 +116,8 @@ app.get("/api/favicon", async (req, res) => {
     }
 
     const urlObj = new URL(url);
-    const baseUrl = `${urlObj.protocol}//${urlObj.hostname}`;
 
-    // Usar servicio de Google como fallback confiable
+    // Usar servicio de Google para obtener favicons (confiable y rápido)
     const googleFavicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=128`;
 
     try {
@@ -144,8 +147,8 @@ app.get("/api/favicon", async (req, res) => {
           return res.json({ success: true, icon: dataUrl });
         }
       }
-    } catch (err) {
-      // Si Google falla, devolver un emoji por defecto
+    } catch {
+      // Si Google falla, log y continuar
       console.log(`Favicon no disponible para ${urlObj.hostname}`);
     }
 
@@ -163,7 +166,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Configurar WebSocket
+/** Gestiona conexiones WebSocket para sincronización en tiempo real entre clientes. */
 io.on("connection", (socket) => {
   console.log(`✅ Cliente conectado: ${socket.id}`);
 

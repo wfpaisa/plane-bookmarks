@@ -1,6 +1,11 @@
 import { useMemo } from "react";
 import type { BookmarkItem } from "../types/bookmark";
 
+/**
+ * Calcula estadísticas del árbol de bookmarks: total de items,
+ * cantidad de carpetas y bookmarks añadidos en el mes actual.
+ * Se usa en el Sidebar para mostrar métricas al usuario.
+ */
 export function useBookmarkStats(data: BookmarkItem[]) {
   return useMemo(() => {
     const now = new Date();

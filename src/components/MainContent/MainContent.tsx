@@ -3,14 +3,8 @@ import type { BookmarkItem } from "../../types/bookmark";
 import { TreeNode } from "../TreeNode";
 import { DropCursor } from "../DropCursor";
 import { BookmarkImporter } from "../BookmarkImporter";
-import {
-  useCallback,
-  useState,
-  useRef,
-  useMemo,
-  createContext,
-  useEffect,
-} from "react";
+import { BookmarkContext } from "../../contexts/BookmarkContext";
+import { useCallback, useState, useRef, useMemo } from "react";
 import "./MainContent.css";
 import { Icon } from "@iconify/react";
 
@@ -38,10 +32,11 @@ interface MainContentProps {
   onUpdate?: (id: string, data: BookmarkItem) => void;
 }
 
-export const BookmarkContext = createContext<{
-  onUpdate?: (id: string, data: BookmarkItem) => void;
-}>({});
-
+/**
+ * Área principal que contiene la barra de búsqueda, controles de árbol,
+ * importador y el componente Tree de react-arborist.
+ * Recibe los datos y handlers de mutación desde App vía props.
+ */
 export function MainContent({
   data,
   searchTerm,
@@ -57,15 +52,15 @@ export function MainContent({
   onUpdate,
 }: MainContentProps) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [isTagSearch, setIsTagSearch] = useState(false);
+  const [isTagSearch, setIsTagSearch] = useState(tagSearchEnabled ?? false);
   const treeRef = useRef<TreeApi<BookmarkItem> | null>(null);
 
-  useEffect(() => {
-    if (tagSearchEnabled) {
-      setIsTagSearch(true);
-    }
-  }, [tagSearchEnabled]);
+  // Sincronizar isTagSearch cuando el prop cambia desde el sidebar (click en tag)
+  if (tagSearchEnabled && !isTagSearch) {
+    setIsTagSearch(true);
+  }
 
+  /** Mide el contenedor del árbol para pasarle dimensiones exactas a react-arborist. */
   const containerRef = useCallback((el: HTMLDivElement | null) => {
     if (el) {
       setDimensions({
@@ -75,48 +70,38 @@ export function MainContent({
     }
   }, []);
 
-  const globalTree = (tree?: TreeApi<BookmarkItem> | null) => {
-    treeRef.current = tree || null;
-    // @ts-ignore
-    window.tree = tree;
-  };
+  /**
+   * Función de búsqueda unificada que filtra nodos por nombre+tags o solo por tags,
+   * según el modo activo. En modo tags, soporta múltiples tags separados por coma
+   * y exige que el nodo tenga todos los tags buscados (AND).
+   */
+  const searchMatch = useCallback(
+    (node: NodeApi<BookmarkItem>, term: string) => {
+      if (isTagSearch) {
+        const searchTags = term
+          .split(",")
+          .map((t) => t.trim().toLowerCase())
+          .filter((t) => t);
+        return searchTags.every(
+          (searchTag) =>
+            node.data.tags?.some(
+              (tag: string) => tag.toLowerCase() === searchTag,
+            ) ?? false,
+        );
+      }
 
-  const handleCollapseAll = () => {
-    treeRef.current?.closeAll();
-  };
-
-  const handleExpandAll = () => {
-    treeRef.current?.openAll();
-  };
-
-  const handleImport = (newData: BookmarkItem[]) => {
-    onDataImport?.(newData);
-  };
-
-  const defaultSearchMatch = (node: NodeApi<BookmarkItem>, term: string) => {
-    const lowerTerm = term.toLowerCase();
-    const hasName = node.data.name.toLowerCase().includes(lowerTerm);
-    const hasTag = node.data.tags
-      ? node.data.tags.some((tag: string) =>
+      const lowerTerm = term.toLowerCase();
+      const nameMatch = node.data.name.toLowerCase().includes(lowerTerm);
+      const tagMatch =
+        node.data.tags?.some((tag: string) =>
           tag.toLowerCase().includes(lowerTerm),
-        )
-      : false;
-    return hasName || hasTag;
-  };
+        ) ?? false;
+      return nameMatch || tagMatch;
+    },
+    [isTagSearch],
+  );
 
-  const tagSearchMatch = (node: NodeApi<BookmarkItem>, term: string) => {
-    const searchTags = term
-      .split(",")
-      .map((t) => t.trim().toLowerCase())
-      .filter((t) => t);
-    return searchTags.every((searchTag) =>
-      node.data.tags
-        ? node.data.tags.some((tag: string) => tag.toLowerCase() === searchTag)
-        : false,
-    );
-  };
-
-  // Crear initialOpenState desde los datos
+  /** Construye el mapa de estado abierto/cerrado desde los datos persistidos. */
   const initialOpenState = useMemo(() => {
     const openState: Record<string, boolean> = {};
     const buildOpenState = (items: BookmarkItem[]) => {
@@ -130,14 +115,6 @@ export function MainContent({
     buildOpenState(data);
     return openState;
   }, [data]);
-
-  // Handler para toggle de carpetas
-  const handleToggle = useCallback(
-    (id: string) => {
-      onToggle?.(id);
-    },
-    [onToggle],
-  );
 
   return (
     <div className="main-content">
@@ -200,13 +177,21 @@ export function MainContent({
               />
             </div>
           )}
-          <div className="chip" onClick={handleCollapseAll} title="Colapsar">
+          <div
+            className="chip"
+            onClick={() => treeRef.current?.closeAll()}
+            title="Colapsar"
+          >
             <Icon icon="solar:minimize-linear" height={16} width={16} />
           </div>
-          <div className="chip" onClick={handleExpandAll} title="Expandir">
+          <div
+            className="chip"
+            onClick={() => treeRef.current?.openAll()}
+            title="Expandir"
+          >
             <Icon icon="solar:maximize-linear" height={16} width={16} />
           </div>
-          <BookmarkImporter onImport={handleImport} />
+          {onDataImport && <BookmarkImporter onImport={onDataImport} />}
         </div>
       </div>
 
@@ -215,31 +200,23 @@ export function MainContent({
           {dimensions.width > 0 && dimensions.height > 0 && (
             <BookmarkContext.Provider value={{ onUpdate }}>
               <Tree
-                ref={globalTree}
+                ref={treeRef}
                 data={data}
                 onCreate={onCreate}
                 onMove={onMove}
                 onRename={onRename}
                 onDelete={onDelete}
-                onToggle={handleToggle}
+                onToggle={onToggle}
                 initialOpenState={initialOpenState}
+                openByDefault={false}
                 width={dimensions.width}
                 height={dimensions.height}
-                rowHeight={40}
+                rowHeight={48}
                 renderCursor={DropCursor}
                 searchTerm={searchTerm}
-                searchMatch={isTagSearch ? tagSearchMatch : defaultSearchMatch}
-                paddingBottom={40}
-                disableDrop={({ parentNode, dragNodes }) => {
-                  if (
-                    parentNode.data.name === "Categories" &&
-                    dragNodes.some((drag) => drag.data.name === "Inbox")
-                  ) {
-                    return true;
-                  } else {
-                    return false;
-                  }
-                }}
+                searchMatch={searchMatch}
+                paddingBottom={12}
+                indent={48}
               >
                 {TreeNode}
               </Tree>

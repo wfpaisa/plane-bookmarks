@@ -1,10 +1,16 @@
 import type { BookmarkItem } from "../types/bookmark";
 
+/**
+ * Parsea un archivo HTML de bookmarks exportado de Chrome/Firefox.
+ * El formato usa etiquetas DL/DT para la jerarquía, H3 para carpetas
+ * y A para enlaces. Retorna el árbol convertido a BookmarkItem[].
+ */
 export function parseBookmarkHTML(htmlContent: string): BookmarkItem[] {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, "text/html");
   let idCounter = 1;
 
+  /** Convierte un elemento HTML (A o H3) en un BookmarkItem. */
   const parseNode = (element: Element): BookmarkItem | null => {
     if (element.tagName === "A") {
       const href = element.getAttribute("HREF");
@@ -50,6 +56,7 @@ export function parseBookmarkHTML(htmlContent: string): BookmarkItem[] {
     return null;
   };
 
+  /** Extrae los BookmarkItem hijos de un elemento DL. */
   const parseChildren = (dl: Element): BookmarkItem[] => {
     const items: BookmarkItem[] = [];
     const directChildren = Array.from(dl.children);
