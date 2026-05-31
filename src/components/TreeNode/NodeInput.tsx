@@ -1,4 +1,4 @@
-import { useEffect, useContext } from "react";
+import { useContext } from "react";
 import { NodeApi } from "react-arborist";
 import type { BookmarkItem } from "../../types/bookmark";
 import { BookmarkModal } from "../BookmarkModal";
@@ -12,14 +12,10 @@ interface NodeInputProps {
  * Componente de edición inline que se muestra cuando un nodo entra en modo edición.
  * Para carpetas solo edita el nombre; para bookmarks abre BookmarkModal
  * con todos los campos (nombre, URL, tags, icono).
+ * El scroll al nodo lo maneja react-arborist internamente (tree.edit → scrollTo).
  */
 export function NodeInput({ node }: NodeInputProps) {
   const { onUpdate } = useContext(BookmarkContext);
-
-  // Hacer scroll al nodo cuando entra en modo edición
-  useEffect(() => {
-    node.tree.scrollTo(node.id, "center");
-  }, [node]);
 
   /**
    * Guarda los cambios del modal. Para carpetas solo renombra via node.submit;

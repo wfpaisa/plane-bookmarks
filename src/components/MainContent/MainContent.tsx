@@ -101,8 +101,14 @@ export function MainContent({
     [isTagSearch],
   );
 
-  /** Construye el mapa de estado abierto/cerrado desde los datos persistidos. */
-  const initialOpenState = useMemo(() => {
+  /**
+   * Construye el mapa de estado abierto/cerrado UNA SOLA VEZ desde los datos iniciales.
+   * El lazy initializer de useState solo se ejecuta en el primer render.
+   * MainContent se monta después de isLoading, así que data ya tiene los datos reales.
+   * Después de eso, react-arborist gestiona el estado abierto/cerrado internamente
+   * via su store Redux.
+   */
+  const [initialOpenState] = useState(() => {
     const openState: Record<string, boolean> = {};
     const buildOpenState = (items: BookmarkItem[]) => {
       items.forEach((item) => {
@@ -114,7 +120,10 @@ export function MainContent({
     };
     buildOpenState(data);
     return openState;
-  }, [data]);
+  });
+
+  /** Valor estable del contexto para evitar re-renders innecesarios de consumidores. */
+  const contextValue = useMemo(() => ({ onUpdate }), [onUpdate]);
 
   return (
     <div className="main-content">
@@ -198,7 +207,7 @@ export function MainContent({
       <div className="tree-container">
         <div ref={containerRef} className="tree-wrapper">
           {dimensions.width > 0 && dimensions.height > 0 && (
-            <BookmarkContext.Provider value={{ onUpdate }}>
+            <BookmarkContext.Provider value={contextValue}>
               <Tree
                 ref={treeRef}
                 data={data}
