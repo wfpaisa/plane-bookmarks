@@ -12,3 +12,4 @@ services:
       - VITE_API_URL=/api
       - NODE_ENV=development
     command: ["bun", "run", "dev"]
+    restart: unless-stopped # Levantar de nuevo tras reiniciar el servidor
